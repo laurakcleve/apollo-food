@@ -33,12 +33,10 @@ const resolvers = {
         .then((results) => Promise.resolve(results.rows)),
   },
   Mutation: {
-    addItem: (parent, args) => {
-      console.log('args.name:', args.name)
-      return client
+    addItem: (parent, args) =>
+      client
         .query('INSERT INTO item(name) VALUES($1) RETURNING *', [args.name])
-        .then((results) => Promise.resolve(results.rows[0]))
-    },
+        .then((results) => Promise.resolve(results.rows[0])),
   },
 }
 
