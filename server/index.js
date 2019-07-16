@@ -17,6 +17,7 @@ const typeDefs = `
   
   type Mutation {
     addItem(name: String!): Item!
+    deleteItem(id: ID!): Int
   }
 
   type Item {
@@ -37,6 +38,10 @@ const resolvers = {
       client
         .query('INSERT INTO item(name) VALUES($1) RETURNING *', [args.name])
         .then((results) => Promise.resolve(results.rows[0])),
+    deleteItem: (parent, args) =>
+      client
+        .query('DELETE FROM item WHERE id = $1', [Number(args.id)])
+        .then((results) => Promise.resolve(results.rowCount)),
   },
 }
 
