@@ -36,7 +36,13 @@ const Item = ({ match, history }) => {
               onCompleted={() => history.push('/items')}
             >
               {(deleteItem) => (
-                <button type="button" onClick={deleteItem}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (window.confirm('Are you sure you want to delete this item?'))
+                      deleteItem()
+                  }}
+                >
                   Delete
                 </button>
               )}
