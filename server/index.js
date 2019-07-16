@@ -14,6 +14,10 @@ const typeDefs = `
   type Query {
     items: [Item]!
   }
+  
+  type Mutation {
+    addItem(name: String!): Item!
+  }
 
   type Item {
     id: ID!
@@ -27,6 +31,14 @@ const resolvers = {
       client
         .query('SELECT * FROM item')
         .then((results) => Promise.resolve(results.rows)),
+  },
+  Mutation: {
+    addItem: (parent, args) => {
+      console.log('args.name:', args.name)
+      return client
+        .query('INSERT INTO item(name) VALUES($1) RETURNING *', [args.name])
+        .then((results) => Promise.resolve(results.rows[0]))
+    },
   },
 }
 
