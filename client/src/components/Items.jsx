@@ -31,7 +31,7 @@ const Items = () => {
 
   return (
     <>
-      <Query query={ITEMS_QUERY}>
+      <Query query={ITEMS_QUERY} fetchPolicy="network-only">
         {({ data, loading, error }) => {
           if (loading) return <p>Loading...</p>
           if (error) return <p>Error</p>
