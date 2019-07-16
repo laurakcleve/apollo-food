@@ -42,7 +42,9 @@ const Items = () => {
               <Link to="/">Home</Link>
               <ul>
                 {data.items.map((item) => (
-                  <li key={item.id}>{item.name}</li>
+                  <li key={item.id}>
+                    <Link to={`/item/${item.id}`}>{item.name}</Link>
+                  </li>
                 ))}
               </ul>
             </div>

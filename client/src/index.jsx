@@ -6,6 +6,7 @@ import { BrowserRouter, Route } from 'react-router-dom'
 
 import Home from './components/Home'
 import Items from './components/Items'
+import Item from './components/Item'
 import Inventory from './components/Inventory'
 import Dishes from './components/Dishes'
 import Purchases from './components/Purchases'
@@ -17,6 +18,7 @@ render(
     <BrowserRouter>
       <Route exact path="/" component={Home} />
       <Route exact path="/items" component={Items} />
+      <Route exact path="/item/:id" component={Item} />
       <Route exact path="/inventory" component={Inventory} />
       <Route exact path="/dishes" component={Dishes} />
       <Route exact path="/Purchases" component={Purchases} />

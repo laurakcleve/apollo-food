@@ -13,6 +13,7 @@ client.connect()
 const typeDefs = `
   type Query {
     items: [Item]!
+    item(id: ID!): Item
   }
   
   type Mutation {
@@ -32,6 +33,10 @@ const resolvers = {
       client
         .query('SELECT * FROM item')
         .then((results) => Promise.resolve(results.rows)),
+    item: (parent, args) =>
+      client
+        .query('SELECT * FROM item WHERE id = $1', [Number(args.id)])
+        .then((results) => Promise.resolve(results.rows[0])),
   },
   Mutation: {
     addItem: (parent, args) =>
