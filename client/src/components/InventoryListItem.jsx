@@ -17,12 +17,17 @@ const ItemName = styled.div`
   flex: 1;
 `
 
+const AddDate = styled.div``
+
 const DeleteButton = styled.button``
 
 const InventoryListItem = ({ inventoryItem, INVENTORY_ITEMS_QUERY }) => {
   return (
     <ListItem>
       <ItemName>{inventoryItem.item.name}</ItemName>
+
+      <AddDate>{inventoryItem.add_date}</AddDate>
+
       <Mutation
         mutation={DELETE_INVENTORY_ITEM_MUTATION}
         variables={{ itemID: inventoryItem.id }}
