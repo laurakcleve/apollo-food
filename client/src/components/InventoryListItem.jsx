@@ -2,6 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { Mutation } from 'react-apollo'
 import { gql } from 'apollo-boost'
+import moment from 'moment'
 
 const DELETE_INVENTORY_ITEM_MUTATION = gql`
   mutation deleteInventoryItem($itemID: ID!) {
@@ -26,7 +27,11 @@ const InventoryListItem = ({ inventoryItem, INVENTORY_ITEMS_QUERY }) => {
     <ListItem>
       <ItemName>{inventoryItem.item.name}</ItemName>
 
-      <AddDate>{inventoryItem.add_date}</AddDate>
+      <AddDate>
+        {inventoryItem.add_date
+          ? moment(Number(inventoryItem.add_date)).format('M/D/YY')
+          : ''}
+      </AddDate>
 
       <Mutation
         mutation={DELETE_INVENTORY_ITEM_MUTATION}

@@ -37,7 +37,7 @@ class InventoryItemsAPI extends DataSource {
       .then((results) => Promise.resolve(results.rows[0]))
   }
 
-  addInventoryItem({ name }) {
+  addInventoryItem({ name, addDate }) {
     const queryString = `
        WITH new_item_id AS (
          INSERT INTO item(name)
@@ -49,8 +49,8 @@ class InventoryItemsAPI extends DataSource {
          )
          RETURNING id
        )
-       INSERT INTO inventory_item(item_id)
-       SELECT id 
+       INSERT INTO inventory_item(item_id, add_date)
+       SELECT id, $2 as add_date 
        FROM (
          SELECT id from new_item_id
          UNION
@@ -58,10 +58,11 @@ class InventoryItemsAPI extends DataSource {
          FROM item
          WHERE name = $1
        ) as item_id_to_insert
+
        RETURNING *
     `
     return client
-      .query(queryString, [name])
+      .query(queryString, [name, addDate])
       .then((results) => Promise.resolve(results.rows[0]))
   }
 

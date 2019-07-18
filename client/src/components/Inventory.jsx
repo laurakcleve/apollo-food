@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Query, Mutation } from 'react-apollo'
 import { gql } from 'apollo-boost'
 import styled from 'styled-components'
+import moment from 'moment'
 
 import InventoryListItem from './InventoryListItem'
 
@@ -22,13 +23,14 @@ const INVENTORY_ITEMS_QUERY = gql`
 `
 
 const ADD_INVENTORY_ITEM_MUTATION = gql`
-  mutation addInventoryItem($itemName: String!) {
-    addInventoryItem(name: $itemName) {
+  mutation addInventoryItem($itemName: String!, $itemAddDate: String) {
+    addInventoryItem(name: $itemName, addDate: $itemAddDate) {
       id
       item {
         id
         name
       }
+      add_date
     }
   }
 `
@@ -40,6 +42,7 @@ const InventoryItemList = styled.ul`
 
 const Inventory = () => {
   const [newItemName, setNewItemName] = useState('')
+  const [newItemAddDate, setNewItemAddDate] = useState(moment().format('M/D/YY'))
 
   const submitInventoryItem = (addInventoryItem, event) => {
     event.preventDefault()
@@ -72,8 +75,10 @@ const Inventory = () => {
       </Query>
 
       <form>
+        <div>Add an item</div>
+
         <label htmlFor="itemName">
-          <span>Add an item:</span>
+          <span>Name</span>
           <input
             id="itemName"
             type="text"
@@ -82,21 +87,33 @@ const Inventory = () => {
           />
         </label>
 
-        <Mutation
-          mutation={ADD_INVENTORY_ITEM_MUTATION}
-          variables={{ itemName: newItemName }}
-          refetchQueries={[{ query: INVENTORY_ITEMS_QUERY }]}
-          onCompleted={() => setNewItemName('')}
-        >
-          {(addInventoryItem) => (
-            <button
-              type="submit"
-              onClick={(event) => submitInventoryItem(addInventoryItem, event)}
-            >
-              Save
-            </button>
-          )}
-        </Mutation>
+        <label htmlFor="itemAddDate">
+          <span>Add date</span>
+          <input
+            id="itemAddDate"
+            type="text"
+            value={newItemAddDate}
+            onChange={(event) => setNewItemAddDate(event.target.value)}
+          />
+        </label>
+
+        <div>
+          <Mutation
+            mutation={ADD_INVENTORY_ITEM_MUTATION}
+            variables={{ itemName: newItemName, itemAddDate: newItemAddDate }}
+            refetchQueries={[{ query: INVENTORY_ITEMS_QUERY }]}
+            onCompleted={() => setNewItemName('')}
+          >
+            {(addInventoryItem) => (
+              <button
+                type="submit"
+                onClick={(event) => submitInventoryItem(addInventoryItem, event)}
+              >
+                Save
+              </button>
+            )}
+          </Mutation>
+        </div>
       </form>
     </>
   )

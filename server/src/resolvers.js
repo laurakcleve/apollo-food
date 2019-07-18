@@ -13,8 +13,8 @@ const resolvers = {
       dataSources.itemsAPI.addItem({ name }),
     deleteItem: (_, { id }, { dataSources }) =>
       dataSources.itemsAPI.deleteItem({ id }),
-    addInventoryItem: (_, { name }, { dataSources }) =>
-      dataSources.inventoryItemsAPI.addInventoryItem({ name }),
+    addInventoryItem: (_, { name, addDate }, { dataSources }) =>
+      dataSources.inventoryItemsAPI.addInventoryItem({ name, addDate }),
     deleteInventoryItem: (_, { id }, { dataSources }) =>
       dataSources.inventoryItemsAPI.deleteInventoryItem({ id }),
   },
