@@ -64,6 +64,16 @@ class InventoryItemsAPI extends DataSource {
       .query(queryString, [name])
       .then((results) => Promise.resolve(results.rows[0]))
   }
+
+  deleteInventoryItem({ id }) {
+    const queryString = `
+      DELETE FROM inventory_item
+      WHERE id = $1 
+    `
+    return client
+      .query(queryString, [Number(id)])
+      .then((results) => Promise.resolve(results.rowCount))
+  }
 }
 
 module.exports = InventoryItemsAPI

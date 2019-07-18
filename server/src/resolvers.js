@@ -15,6 +15,8 @@ const resolvers = {
       dataSources.itemsAPI.deleteItem({ id }),
     addInventoryItem: (_, { name }, { dataSources }) =>
       dataSources.inventoryItemsAPI.addInventoryItem({ name }),
+    deleteInventoryItem: (_, { id }, { dataSources }) =>
+      dataSources.inventoryItemsAPI.deleteInventoryItem({ id }),
   },
 
   InventoryItem: {

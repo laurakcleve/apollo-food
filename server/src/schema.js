@@ -12,6 +12,7 @@ const typeDefs = gql`
     addItem(name: String!): Item!
     deleteItem(id: ID!): Int
     addInventoryItem(name: String!): InventoryItem!
+    deleteInventoryItem(id: ID!): Int
   }
 
   type Item {
