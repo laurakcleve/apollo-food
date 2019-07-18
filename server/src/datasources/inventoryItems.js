@@ -58,7 +58,6 @@ class InventoryItemsAPI extends DataSource {
          FROM item
          WHERE name = $1
        ) as item_id_to_insert
-
        RETURNING *
     `
     return client
