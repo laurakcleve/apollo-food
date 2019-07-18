@@ -2,6 +2,9 @@ import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Query, Mutation } from 'react-apollo'
 import { gql } from 'apollo-boost'
+import styled from 'styled-components'
+
+import InventoryListItem from './InventoryListItem'
 
 const INVENTORY_ITEMS_QUERY = gql`
   query inventoryItems {
@@ -30,6 +33,11 @@ const ADD_INVENTORY_ITEM_MUTATION = gql`
   }
 `
 
+const InventoryItemList = styled.ul`
+  max-width: 400px;
+  list-style-type: none;
+`
+
 const Inventory = () => {
   const [newItemName, setNewItemName] = useState('')
 
@@ -40,7 +48,7 @@ const Inventory = () => {
 
   return (
     <>
-      <Query query={INVENTORY_ITEMS_QUERY}>
+      <Query query={INVENTORY_ITEMS_QUERY} fetchPolicy="network-only">
         {({ data, loading, error }) => {
           if (loading) return <p>Loading...</p>
           if (error) return <p>Error</p>
@@ -49,13 +57,11 @@ const Inventory = () => {
             <div>
               <h1>Inventory</h1>
               <Link to="/">Home</Link>
-              <ul>
+              <InventoryItemList>
                 {data.inventoryItems.map((inventoryItem) => (
-                  <li>
-                    <span>{inventoryItem.item.name}</span>
-                  </li>
+                  <InventoryListItem inventoryItem={inventoryItem} />
                 ))}
-              </ul>
+              </InventoryItemList>
             </div>
           )
         }}
