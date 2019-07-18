@@ -1,5 +1,13 @@
 import React from 'react'
 import styled from 'styled-components'
+import { Mutation } from 'react-apollo'
+import { gql } from 'apollo-boost'
+
+const DELETE_INVENTORY_ITEM_MUTATION = gql`
+  mutation deleteInventoryItem($itemID: ID!) {
+    deleteInventoryItem(id: $itemID)
+  }
+`
 
 const ListItem = styled.li`
   display: flex;
@@ -7,16 +15,25 @@ const ListItem = styled.li`
 
 const ItemName = styled.div`
   flex: 1;
-  text-transform: lowercase;
 `
 
 const DeleteButton = styled.button``
 
-const InventoryListItem = ({ inventoryItem }) => {
+const InventoryListItem = ({ inventoryItem, INVENTORY_ITEMS_QUERY }) => {
   return (
     <ListItem>
       <ItemName>{inventoryItem.item.name}</ItemName>
-      <DeleteButton>Delete</DeleteButton>
+      <Mutation
+        mutation={DELETE_INVENTORY_ITEM_MUTATION}
+        variables={{ itemID: inventoryItem.id }}
+        refetchQueries={[{ query: INVENTORY_ITEMS_QUERY }]}
+      >
+        {(deleteInventoryItem) => (
+          <DeleteButton type="button" onClick={deleteInventoryItem}>
+            Delete
+          </DeleteButton>
+        )}
+      </Mutation>
     </ListItem>
   )
 }

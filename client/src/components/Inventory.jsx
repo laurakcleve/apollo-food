@@ -59,7 +59,11 @@ const Inventory = () => {
               <Link to="/">Home</Link>
               <InventoryItemList>
                 {data.inventoryItems.map((inventoryItem) => (
-                  <InventoryListItem inventoryItem={inventoryItem} />
+                  <InventoryListItem
+                    key={inventoryItem.id}
+                    inventoryItem={inventoryItem}
+                    INVENTORY_ITEMS_QUERY={INVENTORY_ITEMS_QUERY}
+                  />
                 ))}
               </InventoryItemList>
             </div>
