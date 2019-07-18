@@ -36,6 +36,34 @@ class InventoryItemsAPI extends DataSource {
       .query(queryString, [Number(inventoryItemID)])
       .then((results) => Promise.resolve(results.rows[0]))
   }
+
+  addInventoryItem({ name }) {
+    const queryString = `
+       WITH new_item_id AS (
+         INSERT INTO item(name)
+         SELECT $1
+         WHERE NOT EXISTS (
+           SELECT 1
+           FROM item
+           WHERE name = $1
+         )
+         RETURNING id
+       )
+       INSERT INTO inventory_item(item_id)
+       SELECT id 
+       FROM (
+         SELECT id from new_item_id
+         UNION
+         SELECT id
+         FROM item
+         WHERE name = $1
+       ) as item_id_to_insert
+       RETURNING *
+    `
+    return client
+      .query(queryString, [name])
+      .then((results) => Promise.resolve(results.rows[0]))
+  }
 }
 
 module.exports = InventoryItemsAPI
