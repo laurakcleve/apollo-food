@@ -5,7 +5,7 @@ const typeDefs = gql`
     items: [Item]!
     item(id: ID!): Item
     inventoryItems: [InventoryItem]!
-    InventoryItem(id: ID!): InventoryItem
+    inventoryItem(id: ID!): InventoryItem
   }
 
   type Mutation {
