@@ -5,11 +5,13 @@ const typeDefs = gql`
     items: [Item]!
     item(id: ID!): Item
     inventoryItems: [InventoryItem]!
+    InventoryItem(id: ID!): InventoryItem
   }
 
   type Mutation {
     addItem(name: String!): Item!
     deleteItem(id: ID!): Int
+    addInventoryItem(name: String!): InventoryItem!
   }
 
   type Item {
