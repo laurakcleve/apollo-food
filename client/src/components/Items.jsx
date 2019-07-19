@@ -28,7 +28,7 @@ const Items = () => {
 
   const submitItem = (addItem, event) => {
     event.preventDefault()
-    addItem()
+    if (newItemName) addItem()
   }
 
   return (

@@ -47,7 +47,7 @@ const Inventory = () => {
 
   const submitInventoryItem = (addInventoryItem, event) => {
     event.preventDefault()
-    addInventoryItem()
+    if (newItemName) addInventoryItem()
   }
 
   return (
