@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { gql } from 'apollo-boost'
 import { Query, Mutation } from 'react-apollo'
 
+import ItemInput from './ItemInput'
+
 const ITEMS_QUERY = gql`
   query items {
     items {
@@ -22,7 +24,7 @@ const ADD_ITEM_MUTATION = gql`
 `
 
 const Items = () => {
-  const [itemName, setItemName] = useState('')
+  const [newItemName, setNewItemName] = useState('')
 
   const submitItem = (addItem, event) => {
     event.preventDefault()
@@ -53,21 +55,14 @@ const Items = () => {
       </Query>
 
       <form>
-        <label htmlFor="itemName">
-          <span>Add an item:</span>
-          <input
-            id="itemName"
-            type="text"
-            value={itemName}
-            onChange={(event) => setItemName(event.target.value)}
-          />
-        </label>
+        <span>Add an item:</span>
+        <ItemInput newItemName={newItemName} setNewItemName={setNewItemName} />
 
         <Mutation
           mutation={ADD_ITEM_MUTATION}
-          variables={{ itemName }}
+          variables={{ itemName: newItemName }}
           refetchQueries={[{ query: ITEMS_QUERY }]}
-          onCompleted={() => setItemName('')}
+          onCompleted={() => setNewItemName('')}
         >
           {(addItem) => (
             <button type="submit" onClick={(event) => submitItem(addItem, event)}>
