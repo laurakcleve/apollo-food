@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Query, Mutation } from 'react-apollo'
+import { Query, Mutation, withApollo } from 'react-apollo'
 import { gql } from 'apollo-boost'
 import styled from 'styled-components'
 import moment from 'moment'
@@ -41,13 +41,28 @@ const InventoryItemList = styled.ul`
   list-style-type: none;
 `
 
-const Inventory = () => {
+const Inventory = ({ client }) => {
   const [newItemName, setNewItemName] = useState('')
   const [newItemAddDate, setNewItemAddDate] = useState(moment().format('M/D/YY'))
 
   const submitInventoryItem = (addInventoryItem, event) => {
     event.preventDefault()
     if (newItemName) addInventoryItem()
+  }
+
+  const sort = (items) => {
+    const sortedItems = [].concat(items)
+    sortedItems.sort((a, b) => {
+      if (a.item.name < b.item.name) return -1
+      if (a.item.name > b.item.name) return 1
+      return 0
+    })
+    client.writeQuery({
+      query: INVENTORY_ITEMS_QUERY,
+      data: {
+        inventoryItems: sortedItems,
+      },
+    })
   }
 
   return (
@@ -62,6 +77,16 @@ const Inventory = () => {
               <h1>Inventory</h1>
               <Link to="/">Home</Link>
               <InventoryItemList>
+                <li style={{ display: 'flex' }}>
+                  <span
+                    style={{ flex: '1' }}
+                    onClick={() => sort(data.inventoryItems)}
+                  >
+                    Name
+                  </span>
+                  <span>Add date</span>
+                  <span style={{ width: '60px' }} />
+                </li>
                 {data.inventoryItems.map((inventoryItem) => (
                   <InventoryListItem
                     key={inventoryItem.id}
@@ -113,4 +138,4 @@ const Inventory = () => {
   )
 }
 
-export default Inventory
+export default withApollo(Inventory)

@@ -61,7 +61,13 @@ const Items = () => {
         <Mutation
           mutation={ADD_ITEM_MUTATION}
           variables={{ itemName: newItemName }}
-          refetchQueries={[{ query: ITEMS_QUERY }]}
+          update={(cache, { data: { addItem } }) => {
+            const { items } = cache.readQuery({ query: ITEMS_QUERY })
+            cache.writeQuery({
+              query: ITEMS_QUERY,
+              data: { items: items.concat([addItem]) },
+            })
+          }}
           onCompleted={() => setNewItemName('')}
         >
           {(addItem) => (
