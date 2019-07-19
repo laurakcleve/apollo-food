@@ -6,6 +6,7 @@ import styled from 'styled-components'
 import moment from 'moment'
 
 import InventoryListItem from './InventoryListItem'
+import ItemInput from './ItemInput'
 
 const INVENTORY_ITEMS_QUERY = gql`
   query inventoryItems {
@@ -77,15 +78,8 @@ const Inventory = () => {
       <form>
         <div>Add an item</div>
 
-        <label htmlFor="itemName">
-          <span>Name</span>
-          <input
-            id="itemName"
-            type="text"
-            value={newItemName}
-            onChange={(event) => setNewItemName(event.target.value)}
-          />
-        </label>
+        <span>Name</span>
+        <ItemInput newItemName={newItemName} setNewItemName={setNewItemName} />
 
         <label htmlFor="itemAddDate">
           <span>Add date</span>
