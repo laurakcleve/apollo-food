@@ -7,7 +7,7 @@ import { BrowserRouter, Route } from 'react-router-dom'
 import Home from './components/Home'
 import Items from './components/Items'
 import Item from './components/Item'
-import Inventory from './components/Inventory'
+import Inventory from './components/Inventory/Inventory'
 import Dishes from './components/Dishes'
 import Purchases from './components/Purchases'
 
