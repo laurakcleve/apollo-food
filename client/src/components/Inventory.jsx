@@ -36,9 +36,15 @@ const ADD_INVENTORY_ITEM_MUTATION = gql`
   }
 `
 
-const InventoryItemList = styled.ul`
-  max-width: 400px;
-  list-style-type: none;
+const InventoryItemList = styled.table`
+  width: 600px;
+
+  tr {
+    display: flex;
+  }
+
+  td {
+  }
 `
 
 const Inventory = ({ client }) => {
@@ -72,28 +78,36 @@ const Inventory = ({ client }) => {
           if (loading) return <p>Loading...</p>
           if (error) return <p>Error</p>
 
+          sort(data.inventoryItems)
+
           return (
             <div>
               <h1>Inventory</h1>
               <Link to="/">Home</Link>
               <InventoryItemList>
-                <li style={{ display: 'flex' }}>
-                  <span
-                    style={{ flex: '1' }}
-                    onClick={() => sort(data.inventoryItems)}
-                  >
-                    Name
-                  </span>
-                  <span>Add date</span>
-                  <span style={{ width: '60px' }} />
-                </li>
-                {data.inventoryItems.map((inventoryItem) => (
-                  <InventoryListItem
-                    key={inventoryItem.id}
-                    inventoryItem={inventoryItem}
-                    INVENTORY_ITEMS_QUERY={INVENTORY_ITEMS_QUERY}
-                  />
-                ))}
+                <thead>
+                  <tr>
+                    <th
+                      style={{ flex: '1' }}
+                      onClick={() => sort(data.inventoryItems)}
+                    >
+                      Name
+                    </th>
+                    <th>Amount</th>
+                    <th>Add date</th>
+                    <th>Expiration</th>
+                    <th />
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.inventoryItems.map((inventoryItem) => (
+                    <InventoryListItem
+                      key={inventoryItem.id}
+                      inventoryItem={inventoryItem}
+                      INVENTORY_ITEMS_QUERY={INVENTORY_ITEMS_QUERY}
+                    />
+                  ))}
+                </tbody>
               </InventoryItemList>
             </div>
           )

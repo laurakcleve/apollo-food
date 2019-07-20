@@ -10,22 +10,28 @@ const DELETE_INVENTORY_ITEM_MUTATION = gql`
   }
 `
 
-const ListItem = styled.li`
+const ListItem = styled.tr`
   display: flex;
 `
 
-const ItemName = styled.div`
+const Name = styled.td`
   flex: 1;
 `
 
-const AddDate = styled.div``
+const Amount = styled.td``
+
+const AddDate = styled.td``
+
+const Expiration = styled.td``
 
 const DeleteButton = styled.button``
 
 const InventoryListItem = ({ inventoryItem, INVENTORY_ITEMS_QUERY }) => {
   return (
     <ListItem>
-      <ItemName>{inventoryItem.item.name}</ItemName>
+      <Name>{inventoryItem.item.name}</Name>
+
+      <Amount />
 
       <AddDate>
         {inventoryItem.add_date
@@ -33,17 +39,21 @@ const InventoryListItem = ({ inventoryItem, INVENTORY_ITEMS_QUERY }) => {
           : ''}
       </AddDate>
 
-      <Mutation
-        mutation={DELETE_INVENTORY_ITEM_MUTATION}
-        variables={{ itemID: inventoryItem.id }}
-        refetchQueries={[{ query: INVENTORY_ITEMS_QUERY }]}
-      >
-        {(deleteInventoryItem) => (
-          <DeleteButton type="button" onClick={deleteInventoryItem}>
-            Delete
-          </DeleteButton>
-        )}
-      </Mutation>
+      <Expiration />
+
+      <td>
+        <Mutation
+          mutation={DELETE_INVENTORY_ITEM_MUTATION}
+          variables={{ itemID: inventoryItem.id }}
+          refetchQueries={[{ query: INVENTORY_ITEMS_QUERY }]}
+        >
+          {(deleteInventoryItem) => (
+            <DeleteButton type="button" onClick={deleteInventoryItem}>
+              Delete
+            </DeleteButton>
+          )}
+        </Mutation>
+      </td>
     </ListItem>
   )
 }
