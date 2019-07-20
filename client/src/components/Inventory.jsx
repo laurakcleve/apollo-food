@@ -32,24 +32,38 @@ const ADD_INVENTORY_ITEM_MUTATION = gql`
         name
       }
       add_date
+      amount
+      expiration
     }
   }
 `
 
-const InventoryItemList = styled.table`
+const InventoryItemList = styled.div`
   width: 600px;
 
-  tr {
-    display: flex;
-  }
+  .column {
+    padding: 5px;
 
-  td {
+    &--name {
+      flex: 1;
+    }
+
+    &--amount,
+    &--add-date,
+    &--expiration {
+      min-width: 90px;
+    }
+
+    &--delete {
+      width: 70px;
+    }
   }
 `
 
 const Inventory = ({ client }) => {
   const [newItemName, setNewItemName] = useState('')
   const [newItemAddDate, setNewItemAddDate] = useState(moment().format('M/D/YY'))
+  const [newItemAmount, setNewItemAmount] = useState('')
 
   const submitInventoryItem = (addInventoryItem, event) => {
     event.preventDefault()
@@ -85,29 +99,25 @@ const Inventory = ({ client }) => {
               <h1>Inventory</h1>
               <Link to="/">Home</Link>
               <InventoryItemList>
-                <thead>
-                  <tr>
-                    <th
-                      style={{ flex: '1' }}
-                      onClick={() => sort(data.inventoryItems)}
-                    >
-                      Name
-                    </th>
-                    <th>Amount</th>
-                    <th>Add date</th>
-                    <th>Expiration</th>
-                    <th />
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.inventoryItems.map((inventoryItem) => (
-                    <InventoryListItem
-                      key={inventoryItem.id}
-                      inventoryItem={inventoryItem}
-                      INVENTORY_ITEMS_QUERY={INVENTORY_ITEMS_QUERY}
-                    />
-                  ))}
-                </tbody>
+                <div style={{ display: 'flex' }}>
+                  <div
+                    className="column column--name"
+                    onClick={() => sort(data.inventoryItems)}
+                  >
+                    Name
+                  </div>
+                  <div className="column column--amount">Amount</div>
+                  <div className="column column--add-date">Add Date</div>
+                  <div className="column column--expiration">Expiration</div>
+                  <div className="column column--delete" />
+                </div>
+                {data.inventoryItems.map((inventoryItem) => (
+                  <InventoryListItem
+                    key={inventoryItem.id}
+                    inventoryItem={inventoryItem}
+                    INVENTORY_ITEMS_QUERY={INVENTORY_ITEMS_QUERY}
+                  />
+                ))}
               </InventoryItemList>
             </div>
           )
@@ -130,11 +140,32 @@ const Inventory = ({ client }) => {
           />
         </label>
 
+        <label htmlFor="itemAmount">
+          <span>Amount</span>
+          <input
+            type="text"
+            value={newItemAmount}
+            onChange={(event) => setNewItemAmount(event.target.value)}
+          />
+        </label>
+
         <div>
           <Mutation
             mutation={ADD_INVENTORY_ITEM_MUTATION}
-            variables={{ itemName: newItemName, itemAddDate: newItemAddDate }}
-            refetchQueries={[{ query: INVENTORY_ITEMS_QUERY }]}
+            variables={{
+              itemName: newItemName,
+              itemAddDate: newItemAddDate,
+              itemAmount: newItemAmount,
+            }}
+            update={(cache, { data: { addInventoryItem } }) => {
+              const { inventoryItems } = cache.readQuery({
+                query: INVENTORY_ITEMS_QUERY,
+              })
+              cache.writeQuery({
+                query: INVENTORY_ITEMS_QUERY,
+                data: { inventoryItems: inventoryItems.concat([addInventoryItem]) },
+              })
+            }}
             onCompleted={() => setNewItemName('')}
           >
             {(addInventoryItem) => (
