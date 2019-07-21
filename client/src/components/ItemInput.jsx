@@ -11,7 +11,7 @@ const ITEMS_QUERY = gql`
   }
 `
 
-const ItemInput = ({ newItemName, setNewItemName }) => {
+const ItemInput = React.forwardRef(({ newItemName, setNewItemName }, ref) => {
   return (
     <Query query={ITEMS_QUERY}>
       {({ data, loading, error }) => {
@@ -21,6 +21,7 @@ const ItemInput = ({ newItemName, setNewItemName }) => {
         return (
           <>
             <input
+              ref={ref}
               type="text"
               list="itemList"
               value={newItemName}
@@ -36,6 +37,6 @@ const ItemInput = ({ newItemName, setNewItemName }) => {
       }}
     </Query>
   )
-}
+})
 
 export default ItemInput

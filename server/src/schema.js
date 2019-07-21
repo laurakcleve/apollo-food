@@ -11,7 +11,12 @@ const typeDefs = gql`
   type Mutation {
     addItem(name: String!): Item!
     deleteItem(id: ID!): Int
-    addInventoryItem(name: String!, addDate: String): InventoryItem!
+    addInventoryItem(
+      name: String!
+      addDate: String
+      amount: String
+      expiration: String
+    ): InventoryItem!
     deleteInventoryItem(id: ID!): Int
   }
 
