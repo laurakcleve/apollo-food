@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Query, withApollo } from 'react-apollo'
 import { gql } from 'apollo-boost'
@@ -45,19 +45,41 @@ const InventoryItemList = styled.div`
 `
 
 const Inventory = ({ client }) => {
-  const sort = (items) => {
+  const [isSorted, setIsSorted] = useState(false)
+  const [currentSort, setCurrentSort] = useState('')
+
+  const sort = (items, sortBy) => {
+    console.log('sorting')
     const sortedItems = [].concat(items)
-    sortedItems.sort((a, b) => {
-      if (a.item.name < b.item.name) return -1
-      if (a.item.name > b.item.name) return 1
-      return 0
-    })
+
+    if (sortBy === 'name') {
+      if (currentSort === 'name') sortedItems.reverse()
+      else {
+        sortedItems.sort((a, b) => {
+          if (a.item.name < b.item.name) return -1
+          if (a.item.name > b.item.name) return 1
+          return 0
+        })
+        setCurrentSort('name')
+      }
+    } else if (sortBy === 'expiration') {
+      if (currentSort === 'expiration') sortedItems.reverse()
+      else {
+        sortedItems.sort((a, b) => {
+          if (Number(a.expiration) < Number(b.expiration)) return -1
+          if (Number(a.expiration) > Number(b.expiration)) return 1
+          return 0
+        })
+        setCurrentSort('expiration')
+      }
+    }
     client.writeQuery({
       query: INVENTORY_ITEMS_QUERY,
       data: {
         inventoryItems: sortedItems,
       },
     })
+    setIsSorted(true)
   }
 
   return (
@@ -67,7 +89,7 @@ const Inventory = ({ client }) => {
           if (loading) return <p>Loading...</p>
           if (error) return <p>Error</p>
 
-          sort(data.inventoryItems)
+          if (!isSorted) sort(data.inventoryItems, 'expiration')
 
           return (
             <>
@@ -77,13 +99,18 @@ const Inventory = ({ client }) => {
                 <div style={{ display: 'flex' }}>
                   <div
                     className="column column--name"
-                    onClick={() => sort(data.inventoryItems)}
+                    onClick={() => sort(data.inventoryItems, 'name')}
                   >
                     Name
                   </div>
                   <div className="column column--amount">Amount</div>
                   <div className="column column--add-date">Add Date</div>
-                  <div className="column column--expiration">Expiration</div>
+                  <div
+                    className="column column--expiration"
+                    onClick={() => sort(data.inventoryItems, 'expiration')}
+                  >
+                    Expiration
+                  </div>
                   <div className="column column--delete" />
                 </div>
                 {data.inventoryItems.map((inventoryItem) => (
