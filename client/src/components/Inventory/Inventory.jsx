@@ -52,9 +52,7 @@ const Inventory = ({ client }) => {
   const innerSort = ({ items, sortBy, order }) => {
     const sortedItems = [].concat(items)
     if (sortBy === 'name') {
-      console.log('sorting by name')
       if (order === 'asc') {
-        console.log('asc')
         sortedItems.sort((a, b) => {
           if (a.item.name < b.item.name) return -1
           if (a.item.name > b.item.name) return 1
@@ -62,7 +60,6 @@ const Inventory = ({ client }) => {
         })
       }
       if (order === 'desc') {
-        console.log('desc')
         sortedItems.sort((a, b) => {
           if (a.item.name > b.item.name) return -1
           if (a.item.name < b.item.name) return 1
@@ -70,9 +67,7 @@ const Inventory = ({ client }) => {
         })
       }
     } else if (sortBy === 'expiration') {
-      console.log('sorting by expiration')
       if (order === 'asc') {
-        console.log('asc')
         sortedItems.sort((a, b) => {
           if (Number(a.expiration) < Number(b.expiration)) return -1
           if (Number(a.expiration) > Number(b.expiration)) return 1
@@ -80,7 +75,6 @@ const Inventory = ({ client }) => {
         })
       }
       if (order === 'desc') {
-        console.log('desc')
         sortedItems.sort((a, b) => {
           if (Number(a.expiration) > Number(b.expiration)) return -1
           if (Number(a.expiration) < Number(b.expiration)) return 1
@@ -97,8 +91,6 @@ const Inventory = ({ client }) => {
     newSortBy = currentSortBy,
     changeSort = false,
   }) => {
-    console.log('currentSortBy', currentSortBy)
-    console.log('newSortBy', newSortBy)
     setCurrentSortBy(newSortBy)
     const { inventoryItems } = client.readQuery({
       query: INVENTORY_ITEMS_QUERY,
@@ -108,14 +100,12 @@ const Inventory = ({ client }) => {
     let newOrder = prevOrder
 
     if (!changeSort) {
-      console.log('no change sort')
       sortedItems = innerSort({
         items: sortedItems,
         sortBy: prevSortBy,
         order: prevOrder,
       })
     } else if (prevSortBy === newSortBy) {
-      console.log('changing sort')
       newOrder = prevOrder === 'asc' ? 'desc' : 'asc'
       sortedItems = innerSort({
         items: sortedItems,
@@ -123,7 +113,6 @@ const Inventory = ({ client }) => {
         order: newOrder,
       })
     } else {
-      console.log('changing sort')
       newOrder = 'asc'
       sortedItems = innerSort({
         items: sortedItems,
