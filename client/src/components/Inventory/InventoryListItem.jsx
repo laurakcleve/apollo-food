@@ -16,7 +16,11 @@ const ListItem = styled.div`
 
 const DeleteButton = styled.button``
 
-const InventoryListItem = ({ inventoryItem, INVENTORY_ITEMS_QUERY }) => {
+const InventoryListItem = ({
+  inventoryItem,
+  INVENTORY_ITEMS_QUERY,
+  setIsSorted,
+}) => {
   return (
     <ListItem>
       <div className="column column--name">{inventoryItem.item.name}</div>
@@ -42,6 +46,9 @@ const InventoryListItem = ({ inventoryItem, INVENTORY_ITEMS_QUERY }) => {
           mutation={DELETE_INVENTORY_ITEM_MUTATION}
           variables={{ itemID: inventoryItem.id }}
           refetchQueries={[{ query: INVENTORY_ITEMS_QUERY }]}
+          onCompleted={() => {
+            setIsSorted(false)
+          }}
         >
           {(deleteInventoryItem) => (
             <DeleteButton type="button" onClick={deleteInventoryItem}>

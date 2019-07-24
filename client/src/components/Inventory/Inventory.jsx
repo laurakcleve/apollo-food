@@ -46,50 +46,114 @@ const InventoryItemList = styled.div`
 
 const Inventory = ({ client }) => {
   const [isSorted, setIsSorted] = useState(false)
-  const [currentSort, setCurrentSort] = useState('')
+  const [currentSortBy, setCurrentSortBy] = useState('expiration')
+  const [currentSortOrder, setCurrentSortOrder] = useState('asc')
 
-  const sort = (items, sortBy) => {
-    console.log('sorting')
+  const innerSort = ({ items, sortBy, order }) => {
     const sortedItems = [].concat(items)
-
     if (sortBy === 'name') {
-      if (currentSort === 'name') sortedItems.reverse()
-      else {
+      console.log('sorting by name')
+      if (order === 'asc') {
+        console.log('asc')
         sortedItems.sort((a, b) => {
           if (a.item.name < b.item.name) return -1
           if (a.item.name > b.item.name) return 1
           return 0
         })
-        setCurrentSort('name')
+      }
+      if (order === 'desc') {
+        console.log('desc')
+        sortedItems.sort((a, b) => {
+          if (a.item.name > b.item.name) return -1
+          if (a.item.name < b.item.name) return 1
+          return 0
+        })
       }
     } else if (sortBy === 'expiration') {
-      if (currentSort === 'expiration') sortedItems.reverse()
-      else {
+      console.log('sorting by expiration')
+      if (order === 'asc') {
+        console.log('asc')
         sortedItems.sort((a, b) => {
           if (Number(a.expiration) < Number(b.expiration)) return -1
           if (Number(a.expiration) > Number(b.expiration)) return 1
           return 0
         })
-        setCurrentSort('expiration')
+      }
+      if (order === 'desc') {
+        console.log('desc')
+        sortedItems.sort((a, b) => {
+          if (Number(a.expiration) > Number(b.expiration)) return -1
+          if (Number(a.expiration) < Number(b.expiration)) return 1
+          return 0
+        })
       }
     }
+    return sortedItems
+  }
+
+  const sort = ({
+    prevSortBy = currentSortBy,
+    prevOrder = currentSortOrder,
+    newSortBy = currentSortBy,
+    changeSort = false,
+  }) => {
+    console.log('currentSortBy', currentSortBy)
+    console.log('newSortBy', newSortBy)
+    setCurrentSortBy(newSortBy)
+    const { inventoryItems } = client.readQuery({
+      query: INVENTORY_ITEMS_QUERY,
+    })
+
+    let sortedItems = [].concat(inventoryItems)
+    let newOrder = prevOrder
+
+    if (!changeSort) {
+      console.log('no change sort')
+      sortedItems = innerSort({
+        items: sortedItems,
+        sortBy: prevSortBy,
+        order: prevOrder,
+      })
+    } else if (prevSortBy === newSortBy) {
+      console.log('changing sort')
+      newOrder = prevOrder === 'asc' ? 'desc' : 'asc'
+      sortedItems = innerSort({
+        items: sortedItems,
+        sortBy: prevSortBy,
+        order: newOrder,
+      })
+    } else {
+      console.log('changing sort')
+      newOrder = 'asc'
+      sortedItems = innerSort({
+        items: sortedItems,
+        sortBy: newSortBy,
+        order: 'asc',
+      })
+    }
+
+    setCurrentSortOrder(newOrder)
+    setIsSorted(true)
+
     client.writeQuery({
       query: INVENTORY_ITEMS_QUERY,
       data: {
         inventoryItems: sortedItems,
       },
     })
-    setIsSorted(true)
   }
 
   return (
     <>
-      <Query query={INVENTORY_ITEMS_QUERY} fetchPolicy="network-only">
+      <Query
+        query={INVENTORY_ITEMS_QUERY}
+        onCompleted={() => {
+          if (!isSorted) sort({})
+        }}
+      >
         {({ data, loading, error }) => {
           if (loading) return <p>Loading...</p>
           if (error) return <p>Error</p>
-
-          if (!isSorted) sort(data.inventoryItems, 'expiration')
 
           return (
             <>
@@ -99,7 +163,7 @@ const Inventory = ({ client }) => {
                 <div style={{ display: 'flex' }}>
                   <div
                     className="column column--name"
-                    onClick={() => sort(data.inventoryItems, 'name')}
+                    onClick={() => sort({ newSortBy: 'name', changeSort: true })}
                   >
                     Name
                   </div>
@@ -107,7 +171,9 @@ const Inventory = ({ client }) => {
                   <div className="column column--add-date">Add Date</div>
                   <div
                     className="column column--expiration"
-                    onClick={() => sort(data.inventoryItems, 'expiration')}
+                    onClick={() =>
+                      sort({ newSortBy: 'expiration', changeSort: true })
+                    }
                   >
                     Expiration
                   </div>
@@ -118,10 +184,12 @@ const Inventory = ({ client }) => {
                     key={inventoryItem.id}
                     inventoryItem={inventoryItem}
                     INVENTORY_ITEMS_QUERY={INVENTORY_ITEMS_QUERY}
+                    setCurrentSort={setCurrentSortBy}
+                    setIsSorted={setIsSorted}
                   />
                 ))}
               </InventoryItemList>
-              <InventoryForm />
+              <InventoryForm client={client} setIsSorted={setIsSorted} />
             </>
           )
         }}

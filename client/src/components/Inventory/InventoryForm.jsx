@@ -6,7 +6,7 @@ import styled from 'styled-components'
 
 import ItemInput from '../ItemInput'
 
-const InventoryForm = () => {
+const InventoryForm = ({ setIsSorted }) => {
   const [newItemName, setNewItemName] = useState('')
   const [newItemAmount, setNewItemAmount] = useState('')
   const [newItemAddDate, setNewItemAddDate] = useState(moment().format('M/D/YY'))
@@ -87,16 +87,11 @@ const InventoryForm = () => {
               .add(Number(newItemShelflife), 'days')
               .format('YYYY-MM-DD'),
           }}
-          update={(cache, { data: { addInventoryItem } }) => {
-            const { inventoryItems } = cache.readQuery({
-              query: INVENTORY_ITEMS_QUERY,
-            })
-            cache.writeQuery({
-              query: INVENTORY_ITEMS_QUERY,
-              data: { inventoryItems: inventoryItems.concat([addInventoryItem]) },
-            })
+          refetchQueries={[{ query: INVENTORY_ITEMS_QUERY }]}
+          onCompleted={() => {
+            resetInputs()
+            setIsSorted(false)
           }}
-          onCompleted={() => resetInputs()}
         >
           {(addInventoryItem) => (
             <button
