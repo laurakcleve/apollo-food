@@ -67,7 +67,7 @@ const InventoryListItem = ({
           </Mutation>
         </div>
       </TitleBar>
-      {isOpen && <Details />}
+      {isOpen && <Details inventoryItem={inventoryItem} />}
     </ListItem>
   )
 }
