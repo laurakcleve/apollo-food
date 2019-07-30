@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { Mutation } from 'react-apollo'
 import { gql } from 'apollo-boost'
@@ -30,7 +31,12 @@ const InventoryListItem = ({
   return (
     <ListItem>
       <TitleBar>
-        <div className="column column--name" onClick={() => setIsOpen(!isOpen)}>
+        <div
+          role="button"
+          tabIndex="-1"
+          className="column column--name"
+          onClick={() => setIsOpen(!isOpen)}
+        >
           {inventoryItem.item.name}
         </div>
 
@@ -70,6 +76,27 @@ const InventoryListItem = ({
       {isOpen && <Details inventoryItem={inventoryItem} />}
     </ListItem>
   )
+}
+
+InventoryListItem.propTypes = {
+  inventoryItem: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    add_date: PropTypes.string,
+    amount: PropTypes.string,
+    expiration: PropTypes.string,
+    item: PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
+      countsAs: PropTypes.arrayOf(
+        PropTypes.shape({
+          id: PropTypes.string.isRequired,
+          name: PropTypes.string.isRequired,
+        })
+      ),
+    }),
+  }).isRequired,
+  INVENTORY_ITEMS_QUERY: PropTypes.string.isRequired,
+  setIsSorted: PropTypes.func.isRequired,
 }
 
 export default InventoryListItem

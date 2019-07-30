@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import moment from 'moment'
 import styled from 'styled-components'
 
@@ -23,5 +24,24 @@ const Details = ({ inventoryItem }) => {
 const StyledDetails = styled.div`
   border: 1px solid #ccc;
 `
+
+Details.propTypes = {
+  inventoryItem: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    add_date: PropTypes.string,
+    amount: PropTypes.string,
+    expiration: PropTypes.string,
+    item: PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
+      countsAs: PropTypes.arrayOf(
+        PropTypes.shape({
+          id: PropTypes.string.isRequired,
+          name: PropTypes.string.isRequired,
+        })
+      ),
+    }),
+  }).isRequired,
+}
 
 export default Details

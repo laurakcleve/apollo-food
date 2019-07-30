@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
 import { Query, withApollo } from 'react-apollo'
 import { gql } from 'apollo-boost'
+import PropTypes from 'prop-types'
 import styled from 'styled-components'
 
 import InventoryListItem from './InventoryListItem'
@@ -113,6 +113,8 @@ const Inventory = ({ client }) => {
               <InventoryItemList>
                 <div style={{ display: 'flex' }}>
                   <div
+                    role="button"
+                    tabIndex="-1"
                     className="column column--name"
                     onClick={() => sort({ newSortBy: 'name', changeSort: true })}
                   >
@@ -121,6 +123,8 @@ const Inventory = ({ client }) => {
                   <div className="column column--amount">Amount</div>
                   <div className="column column--add-date">Add Date</div>
                   <div
+                    role="button"
+                    tabIndex="-1"
                     className="column column--expiration"
                     onClick={() =>
                       sort({ newSortBy: 'expiration', changeSort: true })
@@ -194,5 +198,12 @@ const InventoryItemList = styled.div`
     }
   }
 `
+
+Inventory.propTypes = {
+  client: PropTypes.shape({
+    readQuery: PropTypes.func.isRequired,
+    writeQuery: PropTypes.func.isRequired,
+  }).isRequired,
+}
 
 export default withApollo(Inventory)

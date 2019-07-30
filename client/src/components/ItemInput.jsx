@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { Query } from 'react-apollo'
 import { gql } from 'apollo-boost'
 
@@ -38,5 +39,10 @@ const ItemInput = React.forwardRef(({ newItemName, setNewItemName }, ref) => {
     </Query>
   )
 })
+
+ItemInput.propTypes = {
+  newItemName: PropTypes.string.isRequired,
+  setNewItemName: PropTypes.func.isRequired,
+}
 
 export default ItemInput

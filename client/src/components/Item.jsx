@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { Query, Mutation } from 'react-apollo'
 import { gql } from 'apollo-boost'
 
@@ -52,6 +53,17 @@ const Item = ({ match, history }) => {
       }}
     </Query>
   )
+}
+
+Item.propTypes = {
+  history: PropTypes.shape({
+    push: PropTypes.func.isRequired,
+  }).isRequired,
+  match: PropTypes.shape({
+    params: PropTypes.shape({
+      id: PropTypes.string.isRequired,
+    }).isRequired,
+  }).isRequired,
 }
 
 export default Item

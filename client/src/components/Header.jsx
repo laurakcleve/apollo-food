@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { Link, withRouter } from 'react-router-dom'
 
@@ -27,5 +28,11 @@ const StyledHeader = styled.header`
 `
 
 const StyledLink = styled(Link)``
+
+Header.propTypes = {
+  location: PropTypes.shape({
+    pathname: PropTypes.string.isRequired,
+  }).isRequired,
+}
 
 export default withRouter(Header)

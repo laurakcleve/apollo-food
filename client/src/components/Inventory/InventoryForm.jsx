@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Mutation } from 'react-apollo'
 import { gql } from 'apollo-boost'
+import PropTypes from 'prop-types'
 import moment from 'moment'
 import styled from 'styled-components'
 
@@ -166,5 +167,9 @@ const ADD_INVENTORY_ITEM_MUTATION = gql`
     }
   }
 `
+
+InventoryForm.propTypes = {
+  setIsSorted: PropTypes.func.isRequired,
+}
 
 export default InventoryForm
