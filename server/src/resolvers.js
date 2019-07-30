@@ -24,6 +24,11 @@ const resolvers = {
       dataSources.inventoryItemsAPI.deleteInventoryItem({ id }),
   },
 
+  Item: {
+    countsAs: (Item, __, { dataSources }) =>
+      dataSources.itemsAPI.getItemCountsAs({ itemID: Item.id }),
+  },
+
   InventoryItem: {
     item: (InventoryItem, __, { dataSources }) =>
       dataSources.inventoryItemsAPI.getInventoryItemItem({

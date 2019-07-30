@@ -16,12 +16,26 @@ class ItemsAPI extends DataSource {
 
   getItem({ id }) {
     const queryString = `
-      SELECT * FROM item 
+      SELECT * 
+      FROM item 
       WHERE id = $1
     `
     return client
       .query(queryString, [Number(id)])
       .then((results) => Promise.resolve(results.rows[0]))
+  }
+
+  getItemCountsAs({ itemID }) {
+    const queryString = `
+      SELECT generic.* 
+      FROM item generic
+      INNER JOIN item_counts_as ica ON ica.generic_item_id = generic.id
+      INNER JOIN item specific ON specific.id = ica.specific_item_id
+      WHERE specific.id = $1
+    `
+    return client
+      .query(queryString, [Number(itemID)])
+      .then((results) => Promise.resolve(results.rows))
   }
 
   addItem({ name }) {

@@ -23,6 +23,7 @@ const typeDefs = gql`
   type Item {
     id: ID!
     name: String!
+    countsAs: [Item]
   }
 
   type InventoryItem {

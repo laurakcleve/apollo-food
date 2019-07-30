@@ -156,6 +156,10 @@ const INVENTORY_ITEMS_QUERY = gql`
       item {
         id
         name
+        countsAs {
+          id
+          name
+        }
       }
       add_date
       expiration

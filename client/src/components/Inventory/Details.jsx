@@ -7,6 +7,15 @@ const Details = ({ inventoryItem }) => {
     <StyledDetails>
       <p>Added</p>
       <p>{moment(Number(inventoryItem.add_date)).format('M/D/YY')}</p>
+
+      {inventoryItem.item.countsAs.length > 0 && (
+        <>
+          <p>Counts as</p>
+          {inventoryItem.item.countsAs.map((genericItem) => (
+            <p>{genericItem.name}</p>
+          ))}
+        </>
+      )}
     </StyledDetails>
   )
 }
