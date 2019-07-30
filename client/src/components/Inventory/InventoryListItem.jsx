@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { Mutation } from 'react-apollo'
@@ -25,8 +25,16 @@ const InventoryListItem = ({
   inventoryItem,
   INVENTORY_ITEMS_QUERY,
   setIsSorted,
+  selectedItemID,
+  setSelectedItemID,
 }) => {
-  const [isOpen, setIsOpen] = useState(false)
+  const toggleOpen = () => {
+    if (selectedItemID === inventoryItem.id) {
+      setSelectedItemID(null)
+    } else {
+      setSelectedItemID(inventoryItem.id)
+    }
+  }
 
   return (
     <ListItem>
@@ -35,7 +43,7 @@ const InventoryListItem = ({
           role="button"
           tabIndex="-1"
           className="column column--name"
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={toggleOpen}
         >
           {inventoryItem.item.name}
         </div>
@@ -73,7 +81,9 @@ const InventoryListItem = ({
           </Mutation>
         </div>
       </TitleBar>
-      {isOpen && <Details inventoryItem={inventoryItem} />}
+      {selectedItemID === inventoryItem.id && (
+        <Details inventoryItem={inventoryItem} />
+      )}
     </ListItem>
   )
 }
@@ -95,8 +105,14 @@ InventoryListItem.propTypes = {
       ),
     }),
   }).isRequired,
-  INVENTORY_ITEMS_QUERY: PropTypes.string.isRequired,
+  INVENTORY_ITEMS_QUERY: PropTypes.shape({}).isRequired,
   setIsSorted: PropTypes.func.isRequired,
+  selectedItemID: PropTypes.string,
+  setSelectedItemID: PropTypes.func.isRequired,
+}
+
+InventoryListItem.defaultProps = {
+  selectedItemID: null,
 }
 
 export default InventoryListItem

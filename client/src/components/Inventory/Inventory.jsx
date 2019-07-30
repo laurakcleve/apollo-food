@@ -11,6 +11,7 @@ const Inventory = ({ client }) => {
   const [isSorted, setIsSorted] = useState(false)
   const [currentSortBy, setCurrentSortBy] = useState('expiration')
   const [currentSortOrder, setCurrentSortOrder] = useState('asc')
+  const [selectedItemID, setSelectedItemID] = useState(null)
 
   const innerSort = ({ items, sortBy, order }) => {
     const sortedItems = [].concat(items)
@@ -139,8 +140,9 @@ const Inventory = ({ client }) => {
                     key={inventoryItem.id}
                     inventoryItem={inventoryItem}
                     INVENTORY_ITEMS_QUERY={INVENTORY_ITEMS_QUERY}
-                    setCurrentSort={setCurrentSortBy}
                     setIsSorted={setIsSorted}
+                    selectedItemID={selectedItemID}
+                    setSelectedItemID={setSelectedItemID}
                   />
                 ))}
               </InventoryItemList>
