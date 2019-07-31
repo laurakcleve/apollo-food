@@ -5,7 +5,7 @@ import styled from 'styled-components'
 
 import InventoryEditForm from './InventoryEditForm'
 
-const Details = ({ inventoryItem }) => {
+const Details = ({ inventoryItem, INVENTORY_ITEMS_QUERY, setIsSorted }) => {
   const [isEditing, setIsEditing] = useState(false)
 
   return (
@@ -37,6 +37,8 @@ const Details = ({ inventoryItem }) => {
         <InventoryEditForm
           inventoryItem={inventoryItem}
           setIsEditing={setIsEditing}
+          INVENTORY_ITEMS_QUERY={INVENTORY_ITEMS_QUERY}
+          setIsSorted={setIsSorted}
         />
       )}
     </StyledDetails>
@@ -64,6 +66,8 @@ Details.propTypes = {
       ),
     }),
   }).isRequired,
+  INVENTORY_ITEMS_QUERY: PropTypes.shape({}).isRequired,
+  setIsSorted: PropTypes.func.isRequired,
 }
 
 export default Details

@@ -14,3 +14,13 @@ export const unixTimeToFormatted = (unixString) => {
 export const formattedTimeToPg = (formattedString) => {
   return moment(formattedString, DISPLAY_FORMAT).format(PG_FORMAT)
 }
+
+export const getExpiration = (daysLeft) => {
+  return moment()
+    .add(daysLeft, 'days')
+    .format(PG_FORMAT)
+}
+
+export const getDaysLeft = (expiration) => {
+  return moment(Number(expiration)).diff(moment(), 'days')
+}

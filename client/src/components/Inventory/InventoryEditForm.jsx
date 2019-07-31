@@ -2,13 +2,24 @@ import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { Mutation } from 'react-apollo'
 import { gql } from 'apollo-boost'
-import { unixTimeToPg, unixTimeToFormatted, formattedTimeToPg } from '../../utils'
+import {
+  unixTimeToFormatted,
+  formattedTimeToPg,
+  getExpiration,
+  getDaysLeft,
+} from '../../utils'
 
-const InventoryEditForm = ({ inventoryItem, setIsEditing }) => {
+const InventoryEditForm = ({
+  inventoryItem,
+  setIsEditing,
+  INVENTORY_ITEMS_QUERY,
+  setIsSorted,
+}) => {
   const [amount, setAmount] = useState(inventoryItem.amount)
   const [addDate, setAddDate] = useState(
     unixTimeToFormatted(inventoryItem.add_date) || ''
   )
+  const [daysLeft, setDaysLeft] = useState(getDaysLeft(inventoryItem.expiration))
 
   const saveInventoryItem = (updateInventoryItem, event) => {
     event.preventDefault()
@@ -35,16 +46,27 @@ const InventoryEditForm = ({ inventoryItem, setIsEditing }) => {
         />
       </label>
 
+      <label htmlFor="daysLeft">
+        <span>Days left</span>
+        <input
+          type="number"
+          value={daysLeft}
+          onChange={(event) => setDaysLeft(event.target.value)}
+        />
+      </label>
+
       <Mutation
         mutation={UPDATE_INVENTORY_ITEM_MUTATION}
         variables={{
           id: inventoryItem.id,
           addDate: formattedTimeToPg(addDate),
           amount,
-          expiration: unixTimeToPg(inventoryItem.expiration),
+          expiration: getExpiration(daysLeft),
         }}
+        refetchQueries={[{ query: INVENTORY_ITEMS_QUERY }]}
         onCompleted={() => {
           setIsEditing(false)
+          setIsSorted(false)
         }}
       >
         {(updateInventoryItem) => (
@@ -103,6 +125,8 @@ InventoryEditForm.propTypes = {
     }),
   }).isRequired,
   setIsEditing: PropTypes.func.isRequired,
+  INVENTORY_ITEMS_QUERY: PropTypes.shape({}).isRequired,
+  setIsSorted: PropTypes.func.isRequired,
 }
 
 export default InventoryEditForm

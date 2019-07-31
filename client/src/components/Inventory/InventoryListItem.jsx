@@ -72,7 +72,11 @@ const InventoryListItem = ({
         </div>
       </TitleBar>
       {selectedItemID === inventoryItem.id && (
-        <Details inventoryItem={inventoryItem} />
+        <Details
+          inventoryItem={inventoryItem}
+          INVENTORY_ITEMS_QUERY={INVENTORY_ITEMS_QUERY}
+          setIsSorted={setIsSorted}
+        />
       )}
     </ListItem>
   )

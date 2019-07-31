@@ -7,7 +7,7 @@ import styled from 'styled-components'
 
 import ItemInput from '../ItemInput'
 
-const InventoryForm = ({ setIsSorted }) => {
+const InventoryForm = ({ setIsSorted, INVENTORY_ITEMS_QUERY }) => {
   const [newItemName, setNewItemName] = useState('')
   const [newItemAmount, setNewItemAmount] = useState('')
   const [newItemAddDate, setNewItemAddDate] = useState(moment().format('M/D/YY'))
@@ -124,25 +124,6 @@ const Row = styled.div`
   }
 `
 
-const INVENTORY_ITEMS_QUERY = gql`
-  query inventoryItems {
-    inventoryItems {
-      id
-      item {
-        id
-        name
-        countsAs {
-          id
-          name
-        }
-      }
-      add_date
-      expiration
-      amount
-    }
-  }
-`
-
 const ADD_INVENTORY_ITEM_MUTATION = gql`
   mutation addInventoryItem(
     $name: String!
@@ -170,6 +151,7 @@ const ADD_INVENTORY_ITEM_MUTATION = gql`
 
 InventoryForm.propTypes = {
   setIsSorted: PropTypes.func.isRequired,
+  INVENTORY_ITEMS_QUERY: PropTypes.shape({}).isRequired,
 }
 
 export default InventoryForm

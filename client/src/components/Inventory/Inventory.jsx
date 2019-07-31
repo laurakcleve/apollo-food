@@ -144,7 +144,11 @@ const Inventory = ({ client }) => {
                   />
                 ))}
               </InventoryItemList>
-              <InventoryForm client={client} setIsSorted={setIsSorted} />
+              <InventoryForm
+                client={client}
+                setIsSorted={setIsSorted}
+                INVENTORY_ITEMS_QUERY={INVENTORY_ITEMS_QUERY}
+              />
             </StyledInventory>
           )
         }}
