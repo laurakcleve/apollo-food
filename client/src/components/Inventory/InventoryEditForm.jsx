@@ -2,10 +2,13 @@ import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { Mutation } from 'react-apollo'
 import { gql } from 'apollo-boost'
-import moment from 'moment'
+import { unixTimeToPg, unixTimeToFormatted, formattedTimeToPg } from '../../utils'
 
 const InventoryEditForm = ({ inventoryItem, setIsEditing }) => {
   const [amount, setAmount] = useState(inventoryItem.amount)
+  const [addDate, setAddDate] = useState(
+    unixTimeToFormatted(inventoryItem.add_date) || ''
+  )
 
   const saveInventoryItem = (updateInventoryItem, event) => {
     event.preventDefault()
@@ -23,13 +26,22 @@ const InventoryEditForm = ({ inventoryItem, setIsEditing }) => {
         />
       </label>
 
+      <label htmlFor="addDate">
+        <span>Add date</span>
+        <input
+          type="text"
+          value={addDate}
+          onChange={(event) => setAddDate(event.target.value)}
+        />
+      </label>
+
       <Mutation
         mutation={UPDATE_INVENTORY_ITEM_MUTATION}
         variables={{
           id: inventoryItem.id,
-          addDate: moment(Number(inventoryItem.add_date)).format('YYYY-MM-DD'),
+          addDate: formattedTimeToPg(addDate),
           amount,
-          expiration: moment(Number(inventoryItem.expiration)).format('YYYY-MM-DD'),
+          expiration: unixTimeToPg(inventoryItem.expiration),
         }}
         onCompleted={() => {
           setIsEditing(false)
