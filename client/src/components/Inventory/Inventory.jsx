@@ -121,8 +121,6 @@ const Inventory = ({ client }) => {
                   >
                     Name
                   </div>
-                  <div className="column column--amount">Amount</div>
-                  <div className="column column--add-date">Add Date</div>
                   <div
                     role="button"
                     tabIndex="-1"

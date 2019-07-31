@@ -48,16 +48,6 @@ const InventoryListItem = ({
           {inventoryItem.item.name}
         </div>
 
-        <div className="column column--amount">
-          {inventoryItem.amount ? inventoryItem.amount : ''}
-        </div>
-
-        <div className="column column--add-date">
-          {inventoryItem.add_date
-            ? moment(Number(inventoryItem.add_date)).format('M/D/YY')
-            : ''}
-        </div>
-
         <div className="column column--expiration">
           {inventoryItem.expiration
             ? moment(Number(inventoryItem.expiration)).format('M/D/YY')

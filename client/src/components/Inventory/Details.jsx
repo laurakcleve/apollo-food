@@ -13,8 +13,15 @@ const Details = ({ inventoryItem }) => {
         <>
           <p>Counts as</p>
           {inventoryItem.item.countsAs.map((genericItem) => (
-            <p>{genericItem.name}</p>
+            <p key={genericItem.id}>{genericItem.name}</p>
           ))}
+        </>
+      )}
+
+      {inventoryItem.amount && (
+        <>
+          <p>Amount</p>
+          <p>{inventoryItem.amount}</p>
         </>
       )}
     </StyledDetails>
