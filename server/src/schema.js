@@ -17,6 +17,12 @@ const typeDefs = gql`
       amount: String
       expiration: String
     ): InventoryItem!
+    updateInventoryItem(
+      id: ID!
+      addDate: String
+      amount: String
+      expiration: String
+    ): InventoryItem!
     deleteInventoryItem(id: ID!): Int
   }
 

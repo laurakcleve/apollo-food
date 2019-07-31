@@ -1,9 +1,13 @@
-import React from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 import styled from 'styled-components'
 
+import InventoryEditForm from './InventoryEditForm'
+
 const Details = ({ inventoryItem }) => {
+  const [isEditing, setIsEditing] = useState(false)
+
   return (
     <StyledDetails>
       <p>Added</p>
@@ -23,6 +27,17 @@ const Details = ({ inventoryItem }) => {
           <p>Amount</p>
           <p>{inventoryItem.amount}</p>
         </>
+      )}
+
+      <button type="button" onClick={() => setIsEditing(true)}>
+        Edit
+      </button>
+
+      {isEditing && (
+        <InventoryEditForm
+          inventoryItem={inventoryItem}
+          setIsEditing={setIsEditing}
+        />
       )}
     </StyledDetails>
   )

@@ -65,6 +65,20 @@ class InventoryItemsAPI extends DataSource {
       .then((results) => Promise.resolve(results.rows[0]))
   }
 
+  updateInventoryItem({ id, addDate, amount, expiration }) {
+    const queryString = `
+      UPDATE inventory_item
+      SET add_date = $2,
+          amount = $3,
+          expiration = $4
+      WHERE id = $1
+      RETURNING *
+    `
+    return client
+      .query(queryString, [id, addDate, amount, expiration])
+      .then((results) => Promise.resolve(results.rows[0]))
+  }
+
   deleteInventoryItem({ id }) {
     const queryString = `
       DELETE FROM inventory_item
