@@ -7,7 +7,7 @@ import styled from 'styled-components'
 
 import ItemInput from '../ItemInput'
 
-const InventoryForm = ({ setIsSorted, INVENTORY_ITEMS_QUERY }) => {
+const InventoryForm = ({ setIsSorted, INVENTORY_ITEMS_QUERY, client }) => {
   const [newItemName, setNewItemName] = useState('')
   const [newItemAmount, setNewItemAmount] = useState('')
   const [newItemAddDate, setNewItemAddDate] = useState(moment().format('M/D/YY'))
@@ -16,6 +16,13 @@ const InventoryForm = ({ setIsSorted, INVENTORY_ITEMS_QUERY }) => {
   const nameInput = React.createRef()
 
   const focusNameInput = () => nameInput.current.focus()
+
+  const checkShelflife = () => {
+    const { items } = client.readQuery({ query: ITEMS_QUERY })
+    const itemObj = items.filter((item) => item.name === newItemName)[0]
+    if (itemObj.default_shelflife)
+      setNewItemShelflife(Number(itemObj.default_shelflife))
+  }
 
   const submitInventoryItem = (addInventoryItem, event) => {
     event.preventDefault()
@@ -39,6 +46,8 @@ const InventoryForm = ({ setIsSorted, INVENTORY_ITEMS_QUERY }) => {
           ref={nameInput}
           newItemName={newItemName}
           setNewItemName={setNewItemName}
+          setNewItemShelflife={setNewItemShelflife}
+          checkShelflife={checkShelflife}
         />
       </Row>
 
@@ -145,6 +154,16 @@ const ADD_INVENTORY_ITEM_MUTATION = gql`
       add_date
       amount
       expiration
+    }
+  }
+`
+
+const ITEMS_QUERY = gql`
+  query items {
+    items {
+      id
+      name
+      default_shelflife
     }
   }
 `

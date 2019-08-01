@@ -30,6 +30,7 @@ const typeDefs = gql`
     id: ID!
     name: String!
     countsAs: [Item]
+    default_shelflife: Int
   }
 
   type InventoryItem {

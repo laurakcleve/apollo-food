@@ -56,6 +56,7 @@ const Inventory = ({ client }) => {
     changeSort = false,
   }) => {
     setCurrentSortBy(newSortBy)
+
     const { inventoryItems } = client.readQuery({
       query: INVENTORY_ITEMS_QUERY,
     })
@@ -168,6 +169,7 @@ const INVENTORY_ITEMS_QUERY = gql`
           id
           name
         }
+        default_shelflife
       }
       add_date
       expiration
