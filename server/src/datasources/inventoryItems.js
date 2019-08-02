@@ -37,31 +37,38 @@ class InventoryItemsAPI extends DataSource {
       .then((results) => Promise.resolve(results.rows[0]))
   }
 
-  addInventoryItem({ name, addDate, amount, expiration }) {
+  addInventoryItem({ name, addDate, expiration, amount, defaultShelflife }) {
     const queryString = `
-       WITH new_item_id AS (
-         INSERT INTO item(name)
-         SELECT $1
-         WHERE NOT EXISTS (
-           SELECT 1
-           FROM item
-           WHERE name = $1
-         )
-         RETURNING id
-       )
-       INSERT INTO inventory_item(item_id, add_date, amount, expiration)
-       SELECT id, $2 AS add_date, $3 AS expiration, $4 AS amount 
-       FROM (
-         SELECT id from new_item_id
-         UNION
-         SELECT id
-         FROM item
-         WHERE name = $1
-       ) as item_id_to_insert
-       RETURNING *
+      WITH new_item_id AS (
+        INSERT INTO item(name, default_shelflife)
+        SELECT $1, $5
+        WHERE NOT EXISTS (
+          SELECT 1
+          FROM item
+          WHERE name = $1
+        )
+        RETURNING id
+      ), existing_item_id AS (
+        SELECT id
+        FROM item
+        WHERE name = $1
+      ), item_id_for_insert AS (
+        SELECT id 
+        FROM new_item_id 
+        UNION SELECT id FROM existing_item_id
+      ), default_shelflife_update as (
+        UPDATE item
+        SET default_shelflife = $5
+        WHERE id = (SELECT id FROM item_id_for_insert)
+        RETURNING *
+      )
+      INSERT INTO inventory_item(item_id, add_date, expiration, amount)
+      SELECT id, $2 AS add_date, $3 AS expiration, $4 AS amount
+      FROM (SELECT id FROM item_id_for_insert) AS the_id
+      RETURNING *
     `
     return client
-      .query(queryString, [name, addDate, amount, expiration])
+      .query(queryString, [name, addDate, expiration, amount, defaultShelflife])
       .then((results) => Promise.resolve(results.rows[0]))
   }
 

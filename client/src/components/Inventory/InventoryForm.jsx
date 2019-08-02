@@ -18,9 +18,10 @@ const InventoryForm = ({ setIsSorted, INVENTORY_ITEMS_QUERY, client }) => {
   const focusNameInput = () => nameInput.current.focus()
 
   const checkShelflife = () => {
+    if (newItemName === '') return
     const { items } = client.readQuery({ query: ITEMS_QUERY })
     const itemObj = items.filter((item) => item.name === newItemName)[0]
-    if (itemObj.default_shelflife)
+    if (itemObj && itemObj.default_shelflife)
       setNewItemShelflife(Number(itemObj.default_shelflife))
   }
 
@@ -81,7 +82,7 @@ const InventoryForm = ({ setIsSorted, INVENTORY_ITEMS_QUERY, client }) => {
             id="itemShelflife"
             type="number"
             value={newItemShelflife}
-            onChange={(event) => setNewItemShelflife(event.target.value)}
+            onChange={(event) => setNewItemShelflife(Number(event.target.value))}
           />
         </label>
       </Row>
@@ -96,8 +97,9 @@ const InventoryForm = ({ setIsSorted, INVENTORY_ITEMS_QUERY, client }) => {
             expiration: moment(newItemAddDate, 'M/D/YY')
               .add(Number(newItemShelflife), 'days')
               .format('YYYY-MM-DD'),
+            defaultShelflife: newItemShelflife,
           }}
-          refetchQueries={[{ query: INVENTORY_ITEMS_QUERY }]}
+          refetchQueries={[{ query: INVENTORY_ITEMS_QUERY }, { query: ITEMS_QUERY }]}
           onCompleted={() => {
             resetInputs()
             setIsSorted(false)
@@ -139,17 +141,20 @@ const ADD_INVENTORY_ITEM_MUTATION = gql`
     $addDate: String
     $amount: String
     $expiration: String
+    $defaultShelflife: Int
   ) {
     addInventoryItem(
       name: $name
       addDate: $addDate
       amount: $amount
       expiration: $expiration
+      defaultShelflife: $defaultShelflife
     ) {
       id
       item {
         id
         name
+        default_shelflife
       }
       add_date
       amount

@@ -16,6 +16,7 @@ const typeDefs = gql`
       addDate: String
       amount: String
       expiration: String
+      defaultShelflife: Int
     ): InventoryItem!
     updateInventoryItem(
       id: ID!
