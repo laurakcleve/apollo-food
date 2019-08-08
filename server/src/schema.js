@@ -6,6 +6,8 @@ const typeDefs = gql`
     item(id: ID!): Item
     inventoryItems: [InventoryItem]!
     inventoryItem(id: ID!): InventoryItem
+    dishes: [Dish]!
+    dish(id: ID!): Dish
   }
 
   type Mutation {
@@ -40,6 +42,11 @@ const typeDefs = gql`
     add_date: String
     expiration: String
     amount: String
+  }
+
+  type Dish {
+    id: ID!
+    name: String!
   }
 `
 

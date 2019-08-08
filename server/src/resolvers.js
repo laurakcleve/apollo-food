@@ -6,6 +6,8 @@ const resolvers = {
       dataSources.inventoryItemsAPI.getInventoryItems(),
     inventoryItem: (_, { id }, { dataSources }) =>
       dataSources.inventoryItemsAPI.getInventoryItem({ id }),
+    dishes: (_, __, { dataSources }) => dataSources.dishesAPI.getDishes(),
+    dish: (_, { id }, { dataSources }) => dataSources.dishesAPI.getDish({ id }),
   },
 
   Mutation: {
