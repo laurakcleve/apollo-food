@@ -176,6 +176,9 @@ const ITEMS_QUERY = gql`
 InventoryForm.propTypes = {
   setIsSorted: PropTypes.func.isRequired,
   INVENTORY_ITEMS_QUERY: PropTypes.shape({}).isRequired,
+  client: PropTypes.shape({
+    readQuery: PropTypes.func.isRequired,
+  }).isRequired,
 }
 
 export default InventoryForm
