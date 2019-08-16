@@ -12,7 +12,7 @@ import Home from './components/Home'
 import Items from './components/Items'
 import Item from './components/Item'
 import Inventory from './components/Inventory/Inventory'
-import Dishes from './components/Dishes'
+import Dishes from './components/Dishes/Dishes'
 import Purchases from './components/Purchases'
 
 const client = new ApolloClient({ uri: 'http://localhost:4000/graphql' })

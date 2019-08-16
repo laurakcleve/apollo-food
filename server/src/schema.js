@@ -27,6 +27,7 @@ const typeDefs = gql`
       expiration: String
     ): InventoryItem!
     deleteInventoryItem(id: ID!): Int
+    addDish(name: String!, ingredientSets: IngredientSetsInput): Dish!
   }
 
   type Item {
@@ -45,6 +46,32 @@ const typeDefs = gql`
   }
 
   type Dish {
+    id: ID!
+    name: String!
+    ingredientSets: [IngredientSet]
+  }
+
+  type IngredientSet {
+    id: ID!
+    ingredients: [Ingredient]
+    optional: Boolean
+  }
+
+  type Ingredient {
+    id: ID!
+    item: Item!
+  }
+
+  input IngredientSetsInput {
+    ingredientSets: [IngredientSetInput]!
+  }
+
+  input IngredientSetInput {
+    id: ID!
+    items: [IngredientInput]!
+  }
+
+  input IngredientInput {
     id: ID!
     name: String!
   }

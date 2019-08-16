@@ -28,6 +28,31 @@ class DishesAPI extends DataSource {
       .query(queryString, [Number(id)])
       .then((results) => Promise.resolve(results.rows[0]))
   }
+
+  addDish({ name, ingredientSets }) {
+    console.log(ingredientSets)
+    const queryString = `
+      WITH new_dish_id AS (
+        INSERT INTO item(name)
+        VALUES($1)
+        RETURNING id
+      )
+      DO
+      $do$
+      DECLARE
+        item_sets_counter := ${ingredientSets.ingredientSets.length};
+      BEGIN
+        WHILE item_sets_counter > 0
+        LOOP
+          RAISE NOTICE 'count is %', item_sets_counter;
+        END LOOP;
+      END
+      $do$
+    `
+    return client
+      .query(queryString, [name])
+      .then((results) => Promise.resolve(results.rows[0]))
+  }
 }
 
 module.exports = DishesAPI

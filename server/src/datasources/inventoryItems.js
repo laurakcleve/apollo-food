@@ -40,8 +40,8 @@ class InventoryItemsAPI extends DataSource {
   addInventoryItem({ name, addDate, expiration, amount, defaultShelflife }) {
     const queryString = `
       WITH new_item_id AS (
-        INSERT INTO item(name, default_shelflife)
-        SELECT $1, $5
+        INSERT INTO item(name, default_shelflife, item_type)
+        SELECT $1, $5, 'baseItem'
         WHERE NOT EXISTS (
           SELECT 1
           FROM item
