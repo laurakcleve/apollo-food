@@ -47,7 +47,7 @@ class DishesAPI extends DataSource {
       newDish.ingredientSets = []
 
       return Promise.all(
-        ingredientSets.ingredientSets.map((ingredientSet, ingredientSetIndex) => {
+        ingredientSets.map((ingredientSet, ingredientSetIndex) => {
           // Building the return object
           newDish.ingredientSets.push({})
 

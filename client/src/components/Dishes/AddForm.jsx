@@ -5,10 +5,10 @@ import PropTypes from 'prop-types'
 
 const AddForm = ({ DISHES_QUERY }) => {
   const [name, setName] = useState('')
-  const [itemSets, setItemSets] = useState([
+  const [ingredientSets, setIngredientSets] = useState([
     {
       id: Date.now(),
-      items: [
+      ingredients: [
         {
           id: Date.now(),
           name: '',
@@ -17,44 +17,48 @@ const AddForm = ({ DISHES_QUERY }) => {
     },
   ])
 
-  const addItemSet = () => {
-    const newItemSets = [...itemSets]
-    newItemSets.push({
+  const addIngredientSet = () => {
+    const newIngredientSets = [...ingredientSets]
+    newIngredientSets.push({
       id: Date.now(),
-      items: [
+      ingredients: [
         {
           id: Date.now(),
           name: '',
         },
       ],
     })
-    setItemSets(newItemSets)
+    setIngredientSets(newIngredientSets)
   }
 
-  const removeItemSet = (itemSetIndex) => {
-    const newItemSets = [...itemSets]
-    newItemSets.splice(itemSetIndex, 1)
-    setItemSets(newItemSets)
+  const removeIngredientSet = (ingredientSetIndex) => {
+    const newIngredientSets = [...ingredientSets]
+    newIngredientSets.splice(ingredientSetIndex, 1)
+    setIngredientSets(newIngredientSets)
   }
 
-  const addSubstitute = (itemSetIndex) => {
-    const newItemSets = [...itemSets]
-    newItemSets[itemSetIndex].items.push({ id: Date.now(), name: '' })
-    setItemSets(newItemSets)
+  const addSubstitute = (ingredientSetIndex) => {
+    const newIngredientSets = [...ingredientSets]
+    newIngredientSets[ingredientSetIndex].ingredients.push({
+      id: Date.now(),
+      name: '',
+    })
+    setIngredientSets(newIngredientSets)
   }
 
-  const removeSubstitute = (itemSetIndex, itemSetItemIndex) => {
-    const newItemSets = [...itemSets]
-    if (newItemSets[itemSetIndex].items.length <= 1)
-      newItemSets.splice(itemSetIndex, 1)
-    else newItemSets[itemSetIndex].items.splice(itemSetItemIndex, 1)
-    setItemSets(newItemSets)
+  const removeSubstitute = (ingredientSetIndex, ingredientIndex) => {
+    const newIngredientSets = [...ingredientSets]
+    if (newIngredientSets[ingredientSetIndex].ingredients.length <= 1)
+      newIngredientSets.splice(ingredientSetIndex, 1)
+    else newIngredientSets[ingredientSetIndex].ingredients.splice(ingredientIndex, 1)
+    setIngredientSets(newIngredientSets)
   }
 
-  const setItemSetItem = (event, itemSetIndex, itemSetItemIndex) => {
-    const newItemSets = [...itemSets]
-    newItemSets[itemSetIndex].items[itemSetItemIndex].name = event.target.value
-    setItemSets(newItemSets)
+  const setIngredient = (event, ingredientSetIndex, ingredientIndex) => {
+    const newIngredientSets = [...ingredientSets]
+    newIngredientSets[ingredientSetIndex].ingredients[ingredientIndex].name =
+      event.target.value
+    setIngredientSets(newIngredientSets)
   }
 
   const submitDish = (event, addDish) => {
@@ -83,17 +87,17 @@ const AddForm = ({ DISHES_QUERY }) => {
 
           return (
             <>
-              {itemSets.map((itemSet, itemSetIndex) => (
-                <div key={itemSet.id}>
+              {ingredientSets.map((ingredientSet, ingredientSetIndex) => (
+                <div key={ingredientSet.id}>
                   <span>Ingredient</span>
-                  {itemSet.items.map((itemSetItem, itemSetItemIndex) => (
-                    <React.Fragment key={itemSetItem.id}>
+                  {ingredientSet.ingredients.map((ingredient, ingredientIndex) => (
+                    <React.Fragment key={ingredient.id}>
                       <input
                         type="text"
                         list="itemList"
-                        value={itemSets[itemSetIndex][itemSetItemIndex]}
+                        value={ingredientSets[ingredientSetIndex][ingredientIndex]}
                         onChange={(event) =>
-                          setItemSetItem(event, itemSetIndex, itemSetItemIndex)
+                          setIngredient(event, ingredientSetIndex, ingredientIndex)
                         }
                       />
                       <datalist id="itemList">
@@ -104,17 +108,23 @@ const AddForm = ({ DISHES_QUERY }) => {
                       <button
                         type="button"
                         onClick={() =>
-                          removeSubstitute(itemSetIndex, itemSetItemIndex)
+                          removeSubstitute(ingredientSetIndex, ingredientIndex)
                         }
                       >
                         X
                       </button>
                     </React.Fragment>
                   ))}
-                  <button type="button" onClick={() => addSubstitute(itemSetIndex)}>
+                  <button
+                    type="button"
+                    onClick={() => addSubstitute(ingredientSetIndex)}
+                  >
                     Add substitute
                   </button>
-                  <button type="button" onClick={() => removeItemSet(itemSetIndex)}>
+                  <button
+                    type="button"
+                    onClick={() => removeIngredientSet(ingredientSetIndex)}
+                  >
                     Remove
                   </button>
                 </div>
@@ -124,13 +134,13 @@ const AddForm = ({ DISHES_QUERY }) => {
         }}
       </Query>
 
-      <button type="button" onClick={addItemSet}>
+      <button type="button" onClick={addIngredientSet}>
         Add Item Set
       </button>
 
       <Mutation
         mutation={ADD_DISH_MUTATION}
-        variables={{ name }}
+        variables={{ name, ingredientSets }}
         refetchQueries={[{ query: DISHES_QUERY }]}
       >
         {(addDish) => (
@@ -153,10 +163,20 @@ const ITEMS_QUERY = gql`
 `
 
 const ADD_DISH_MUTATION = gql`
-  mutation addDish($name: String!) {
-    addDish(name: $name) {
+  mutation addDish($name: String!, $ingredientSets: [IngredientSetInput]!) {
+    addDish(name: $name, ingredientSets: $ingredientSets) {
       id
       name
+      ingredientSets {
+        id
+        ingredients {
+          id
+          item {
+            id
+            name
+          }
+        }
+      }
     }
   }
 `
