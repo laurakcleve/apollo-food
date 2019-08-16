@@ -51,6 +51,23 @@ const resolvers = {
         inventoryItemID: InventoryItem.id,
       }),
   },
+
+  Dish: {
+    ingredientSets: (Dish, __, { dataSources }) =>
+      dataSources.dishesAPI.getDishIngredientSets({ dishID: Dish.id }),
+  },
+
+  IngredientSet: {
+    ingredients: (IngredientSet, __, { dataSources }) =>
+      dataSources.dishesAPI.getIngredientSetIngredients({
+        ingredientSetID: IngredientSet.id,
+      }),
+  },
+
+  Ingredient: {
+    item: (Ingredient, __, { dataSources }) =>
+      dataSources.dishesAPI.getIngredientItem({ ingredientID: Ingredient.id }),
+  },
 }
 
 module.exports = resolvers

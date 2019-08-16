@@ -1,32 +1,41 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState } from 'react'
 import { Query } from 'react-apollo'
 import { gql } from 'apollo-boost'
+import styled from 'styled-components'
 
 import AddForm from './AddForm'
+import DishListItem from './DishListItem'
 
 const Dishes = () => {
+  const [selectedDishID, setSelectedDishID] = useState(null)
+
   return (
-    <div>
+    <StyledDishes>
       <h1>Dishes</h1>
-      <Link to="/">Home</Link>
       <Query query={DISHES_QUERY}>
         {({ data, loading, error }) => {
           if (loading) return <p>Loading...</p>
           if (error) return <p>Error</p>
 
           return (
-            <div>
-              {data.dishes.map((dish) => (
-                <div key={dish.id}>{dish.name}</div>
-              ))}
-            </div>
+            <DishList>
+              <div>
+                {data.dishes.map((dish) => (
+                  <DishListItem
+                    key={dish.id}
+                    dish={dish}
+                    selectedDishID={selectedDishID}
+                    setSelectedDishID={setSelectedDishID}
+                  />
+                ))}
+              </div>
+            </DishList>
           )
         }}
       </Query>
 
       <AddForm DISHES_QUERY={DISHES_QUERY} />
-    </div>
+    </StyledDishes>
   )
 }
 
@@ -35,8 +44,27 @@ const DISHES_QUERY = gql`
     dishes {
       id
       name
+      ingredientSets {
+        id
+        ingredients {
+          id
+          item {
+            id
+            name
+          }
+        }
+      }
     }
   }
+`
+
+const StyledDishes = styled.div`
+  max-width: ${({ theme }) => theme.containerWidth};
+  margin: 0 auto;
+`
+
+const DishList = styled.div`
+  width: 600px;
 `
 
 export default Dishes

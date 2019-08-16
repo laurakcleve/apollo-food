@@ -29,6 +29,40 @@ class DishesAPI extends DataSource {
       .then((results) => Promise.resolve(results.rows[0]))
   }
 
+  getDishIngredientSets({ dishID }) {
+    const queryString = `
+      SELECT *
+      FROM ingredient_set
+      WHERE parent_item_id = $1 
+    `
+    return client
+      .query(queryString, [Number(dishID)])
+      .then((results) => Promise.resolve(results.rows))
+  }
+
+  getIngredientSetIngredients({ ingredientSetID }) {
+    const queryString = `
+      SELECT *
+      FROM ingredient
+      WHERE ingredient_set_id = $1 
+    `
+    return client
+      .query(queryString, [Number(ingredientSetID)])
+      .then((results) => Promise.resolve(results.rows))
+  }
+
+  getIngredientItem({ ingredientID }) {
+    const queryString = `
+      SELECT *
+      FROM item
+      INNER JOIN ingredient ON ingredient.item_id = item.id
+      WHERE ingredient.id = $1 
+    `
+    return client
+      .query(queryString, [Number(ingredientID)])
+      .then((results) => Promise.resolve(results.rows[0]))
+  }
+
   addDish({ name, ingredientSets }) {
     // Building the return object
     const newDish = {}
