@@ -68,7 +68,7 @@ const typeDefs = gql`
 
   input IngredientSetInput {
     id: ID!
-    items: [IngredientInput]!
+    ingredients: [IngredientInput]!
   }
 
   input IngredientInput {

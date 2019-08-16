@@ -30,28 +30,93 @@ class DishesAPI extends DataSource {
   }
 
   addDish({ name, ingredientSets }) {
-    console.log(ingredientSets)
-    const queryString = `
-      WITH new_dish_id AS (
-        INSERT INTO item(name)
-        VALUES($1)
-        RETURNING id
-      )
-      DO
-      $do$
-      DECLARE
-        item_sets_counter := ${ingredientSets.ingredientSets.length};
-      BEGIN
-        WHILE item_sets_counter > 0
-        LOOP
-          RAISE NOTICE 'count is %', item_sets_counter;
-        END LOOP;
-      END
-      $do$
+    // Building the return object
+    const newDish = {}
+
+    const newDishQueryString = `
+      INSERT INTO item(name, item_type)
+      VALUES($1, 'dish')
+      RETURNING *
     `
-    return client
-      .query(queryString, [name])
-      .then((results) => Promise.resolve(results.rows[0]))
+    return client.query(newDishQueryString, [name]).then((newDishResults) => {
+      const newDishID = newDishResults.rows[0].id
+      const newDishName = newDishResults.rows[0].name
+      // Building the return object
+      newDish.id = newDishID
+      newDish.name = newDishName
+      newDish.ingredientSets = []
+
+      return Promise.all(
+        ingredientSets.ingredientSets.map((ingredientSet, ingredientSetIndex) => {
+          // Building the return object
+          newDish.ingredientSets.push({})
+
+          const newIngredientSetQueryString = `
+            INSERT INTO ingredient_set(parent_item_id)
+            VALUES($1)
+            RETURNING *
+          `
+          return client
+            .query(newIngredientSetQueryString, [newDishID])
+            .then((newIngredientSetResults) => {
+              const newIngredientSetID = newIngredientSetResults.rows[0].id
+
+              // Building the return object
+              newDish.ingredientSets[ingredientSetIndex].id = newIngredientSetID
+              newDish.ingredientSets[ingredientSetIndex].ingredients = []
+
+              return Promise.all(
+                ingredientSet.ingredients.map((ingredient, ingredientIndex) => {
+                  const newIngredientQueryString = `
+                    WITH new_item_id AS (
+                      INSERT INTO item(name, item_type)
+                      SELECT $1, 'baseItem'
+                      WHERE NOT EXISTS (
+                        SELECT 1
+                        FROM item
+                        WHERE name = $1
+                      )
+                      RETURNING id
+                    ), existing_item_id AS (
+                      SELECT id
+                      FROM item
+                      WHERE name = $1
+                    ), item_id_for_insert AS (
+                      SELECT id 
+                      FROM new_item_id 
+                      UNION SELECT id FROM existing_item_id
+                    )
+                    INSERT INTO ingredient(ingredient_set_id, item_id)
+                    SELECT $2 AS ingredient_set_id, id AS item_id
+                    FROM (SELECT id FROM item_id_for_insert) AS the_id
+                    RETURNING *
+                  `
+                  return client
+                    .query(newIngredientQueryString, [
+                      ingredient.name,
+                      newIngredientSetID,
+                    ])
+                    .then((newIngredientresults) => {
+                      const newIngredient = newIngredientresults.rows[0]
+                      console.log(newIngredient)
+
+                      // Building the return object
+                      newDish.ingredientSets[ingredientSetIndex].ingredients[
+                        ingredientIndex
+                      ] = {
+                        id: newIngredient.id,
+                        item: {
+                          id: newIngredient.item_id,
+                          name: ingredient.name,
+                        },
+                      }
+                    })
+                })
+              )
+            })
+        })
+      ).then(() => Promise.resolve(newDish))
+    })
   }
 }
 
