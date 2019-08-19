@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import moment from 'moment'
 import styled from 'styled-components'
 
-import InventoryEditForm from './InventoryEditForm'
+import FormEdit from './FormEdit'
 
 const Details = ({ inventoryItem, INVENTORY_ITEMS_QUERY, setIsSorted }) => {
   const [isEditing, setIsEditing] = useState(false)
@@ -43,7 +43,7 @@ const Details = ({ inventoryItem, INVENTORY_ITEMS_QUERY, setIsSorted }) => {
       </button>
 
       {isEditing && (
-        <InventoryEditForm
+        <FormEdit
           inventoryItem={inventoryItem}
           setIsEditing={setIsEditing}
           INVENTORY_ITEMS_QUERY={INVENTORY_ITEMS_QUERY}

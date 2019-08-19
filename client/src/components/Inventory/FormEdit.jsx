@@ -9,7 +9,7 @@ import {
   getDaysLeft,
 } from '../../utils'
 
-const InventoryEditForm = ({
+const FormEdit = ({
   inventoryItem,
   setIsEditing,
   INVENTORY_ITEMS_QUERY,
@@ -107,7 +107,7 @@ const UPDATE_INVENTORY_ITEM_MUTATION = gql`
   }
 `
 
-InventoryEditForm.propTypes = {
+FormEdit.propTypes = {
   inventoryItem: PropTypes.shape({
     id: PropTypes.string.isRequired,
     add_date: PropTypes.string,
@@ -129,4 +129,4 @@ InventoryEditForm.propTypes = {
   setIsSorted: PropTypes.func.isRequired,
 }
 
-export default InventoryEditForm
+export default FormEdit

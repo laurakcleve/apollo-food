@@ -3,7 +3,7 @@ import { Query } from 'react-apollo'
 import { gql } from 'apollo-boost'
 import styled from 'styled-components'
 
-import AddForm from './AddForm'
+import FormAdd from './FormAdd'
 import DishListItem from './DishListItem'
 
 const Dishes = () => {
@@ -34,7 +34,7 @@ const Dishes = () => {
         }}
       </Query>
 
-      <AddForm DISHES_QUERY={DISHES_QUERY} />
+      <FormAdd DISHES_QUERY={DISHES_QUERY} />
     </StyledDishes>
   )
 }

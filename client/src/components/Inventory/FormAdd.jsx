@@ -7,7 +7,7 @@ import styled from 'styled-components'
 
 import ItemInput from '../ItemInput'
 
-const InventoryForm = ({ setIsSorted, INVENTORY_ITEMS_QUERY, client }) => {
+const FormAdd = ({ setIsSorted, INVENTORY_ITEMS_QUERY, client }) => {
   const [newItemName, setNewItemName] = useState('')
   const [newItemAmount, setNewItemAmount] = useState('')
   const [newItemAddDate, setNewItemAddDate] = useState(moment().format('M/D/YY'))
@@ -173,7 +173,7 @@ const ITEMS_QUERY = gql`
   }
 `
 
-InventoryForm.propTypes = {
+FormAdd.propTypes = {
   setIsSorted: PropTypes.func.isRequired,
   INVENTORY_ITEMS_QUERY: PropTypes.shape({}).isRequired,
   client: PropTypes.shape({
@@ -181,4 +181,4 @@ InventoryForm.propTypes = {
   }).isRequired,
 }
 
-export default InventoryForm
+export default FormAdd

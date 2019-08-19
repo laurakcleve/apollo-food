@@ -3,7 +3,7 @@ import { Query, Mutation } from 'react-apollo'
 import { gql } from 'apollo-boost'
 import PropTypes from 'prop-types'
 
-const AddForm = ({ DISHES_QUERY }) => {
+const FormAdd = ({ DISHES_QUERY }) => {
   const [name, setName] = useState('')
   const [ingredientSets, setIngredientSets] = useState([
     {
@@ -181,8 +181,8 @@ const ADD_DISH_MUTATION = gql`
   }
 `
 
-AddForm.propTypes = {
+FormAdd.propTypes = {
   DISHES_QUERY: PropTypes.shape({}).isRequired,
 }
 
-export default AddForm
+export default FormAdd

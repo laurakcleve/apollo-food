@@ -5,7 +5,7 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 
 import InventoryListItem from './InventoryListItem'
-import InventoryForm from './InventoryForm'
+import FormAdd from './FormAdd'
 
 const Inventory = ({ client }) => {
   const [isSorted, setIsSorted] = useState(false)
@@ -145,7 +145,7 @@ const Inventory = ({ client }) => {
                   />
                 ))}
               </InventoryItemList>
-              <InventoryForm
+              <FormAdd
                 client={client}
                 setIsSorted={setIsSorted}
                 INVENTORY_ITEMS_QUERY={INVENTORY_ITEMS_QUERY}
