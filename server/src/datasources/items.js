@@ -38,6 +38,20 @@ class ItemsAPI extends DataSource {
       .then((results) => Promise.resolve(results.rows))
   }
 
+  getItemDishes({ itemID }) {
+    const queryString = `
+      SELECT dish.*
+      FROM item dish
+      INNER JOIN ingredient_set ings ON ings.parent_item_id = dish.id
+      INNER JOIN ingredient ing ON ing.ingredient_set_id = ings.id
+      INNER JOIN item i ON i.id = ing.item_id
+      WHERE i.id = $1
+    `
+    return client
+      .query(queryString, [Number(itemID)])
+      .then((results) => Promise.resolve(results.rows))
+  }
+
   addItem({ name }) {
     const queryString = `
       INSERT INTO item(name)

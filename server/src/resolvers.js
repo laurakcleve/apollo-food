@@ -43,6 +43,8 @@ const resolvers = {
   Item: {
     countsAs: (Item, __, { dataSources }) =>
       dataSources.itemsAPI.getItemCountsAs({ itemID: Item.id }),
+    dishes: (Item, __, { dataSources }) =>
+      dataSources.itemsAPI.getItemDishes({ itemID: Item.id }),
   },
 
   InventoryItem: {
