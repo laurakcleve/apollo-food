@@ -170,6 +170,10 @@ const INVENTORY_ITEMS_QUERY = gql`
           name
         }
         default_shelflife
+        dishes {
+          id
+          name
+        }
       }
       add_date
       expiration

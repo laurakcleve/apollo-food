@@ -29,6 +29,15 @@ const Details = ({ inventoryItem, INVENTORY_ITEMS_QUERY, setIsSorted }) => {
         </>
       )}
 
+      {inventoryItem.item.dishes && (
+        <>
+          <p>Used In</p>
+          {inventoryItem.item.dishes.map((dish) => (
+            <p key={dish.id}>{dish.name}</p>
+          ))}
+        </>
+      )}
+
       <button type="button" onClick={() => setIsEditing(true)}>
         Edit
       </button>
@@ -59,6 +68,12 @@ Details.propTypes = {
       id: PropTypes.string.isRequired,
       name: PropTypes.string.isRequired,
       countsAs: PropTypes.arrayOf(
+        PropTypes.shape({
+          id: PropTypes.string.isRequired,
+          name: PropTypes.string.isRequired,
+        })
+      ),
+      dishes: PropTypes.arrayOf(
         PropTypes.shape({
           id: PropTypes.string.isRequired,
           name: PropTypes.string.isRequired,
