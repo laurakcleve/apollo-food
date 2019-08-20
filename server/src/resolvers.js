@@ -17,7 +17,7 @@ const resolvers = {
       dataSources.itemsAPI.deleteItem({ id }),
     addInventoryItem: (
       _,
-      { name, addDate, amount, expiration, defaultShelflife },
+      { name, addDate, amount, expiration, defaultShelflife, countsAs },
       { dataSources }
     ) =>
       dataSources.inventoryItemsAPI.addInventoryItem({
@@ -26,6 +26,7 @@ const resolvers = {
         amount,
         expiration,
         defaultShelflife,
+        countsAs,
       }),
     updateInventoryItem: (_, { id, addDate, amount, expiration }, { dataSources }) =>
       dataSources.inventoryItemsAPI.updateInventoryItem({

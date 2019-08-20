@@ -37,38 +37,43 @@ class InventoryItemsAPI extends DataSource {
       .then((results) => Promise.resolve(results.rows[0]))
   }
 
-  addInventoryItem({ name, addDate, expiration, amount, defaultShelflife }) {
+  addInventoryItem({
+    name,
+    addDate,
+    expiration,
+    amount,
+    defaultShelflife,
+    countsAs,
+  }) {
     const queryString = `
-      WITH new_item_id AS (
-        INSERT INTO item(name, default_shelflife, item_type)
-        SELECT $1, $5, 'baseItem'
-        WHERE NOT EXISTS (
-          SELECT 1
-          FROM item
-          WHERE name = $1
-        )
-        RETURNING id
-      ), existing_item_id AS (
-        SELECT id
-        FROM item
-        WHERE name = $1
-      ), item_id_for_insert AS (
-        SELECT id 
-        FROM new_item_id 
-        UNION SELECT id FROM existing_item_id
-      ), default_shelflife_update as (
+      WITH inventory_insert AS (
+        INSERT INTO item_counts_as(specific_item_id, generic_item_id)
+        SELECT item_id_for_insert($1), item_id_for_insert($6)
+        WHERE $6 != ''
+          AND ((SELECT generic_item_id 
+                FROM item_counts_as
+                WHERE specific_item_id = item_id_for_insert($1)) != item_id_for_insert($6)
+              OR item_id_for_insert($1) NOT IN (SELECT specific_item_id FROM item_counts_as)
+              )
+      ), default_shelflife_update AS (
         UPDATE item
         SET default_shelflife = $5
-        WHERE id = (SELECT id FROM item_id_for_insert)
+        WHERE id = item_id_for_insert($1)
         RETURNING *
-      )
+      ) 
       INSERT INTO inventory_item(item_id, add_date, expiration, amount)
-      SELECT id, $2 AS add_date, $3 AS expiration, $4 AS amount
-      FROM (SELECT id FROM item_id_for_insert) AS the_id
+      SELECT item_id_for_insert($1), $2 AS add_date, $3 AS expiration, $4 AS amount
       RETURNING *
     `
     return client
-      .query(queryString, [name, addDate, expiration, amount, defaultShelflife])
+      .query(queryString, [
+        name,
+        addDate,
+        expiration,
+        amount,
+        defaultShelflife,
+        countsAs,
+      ])
       .then((results) => Promise.resolve(results.rows[0]))
   }
 

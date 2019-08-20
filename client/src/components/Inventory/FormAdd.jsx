@@ -10,6 +10,7 @@ const FormAdd = ({ setIsSorted, INVENTORY_ITEMS_QUERY, client }) => {
   const [newItemAmount, setNewItemAmount] = useState('')
   const [newItemAddDate, setNewItemAddDate] = useState(moment().format('M/D/YY'))
   const [newItemShelflife, setNewItemShelflife] = useState('')
+  const [newItemCountsAs, setNewItemCountsAs] = useState('')
 
   const { loading, error, data } = useQuery(ITEMS_QUERY)
   const [addInventoryItem] = useMutation(ADD_INVENTORY_ITEM_MUTATION, {
@@ -62,6 +63,7 @@ const FormAdd = ({ setIsSorted, INVENTORY_ITEMS_QUERY, client }) => {
                 .add(Number(newItemShelflife), 'days')
                 .format('YYYY-MM-DD'),
               defaultShelflife: newItemShelflife,
+              countsAs: newItemCountsAs,
             },
           })
         }
@@ -126,6 +128,26 @@ const FormAdd = ({ setIsSorted, INVENTORY_ITEMS_QUERY, client }) => {
         </label>
       </Row>
 
+      <Row>
+        <label htmlFor="itemCountsAs">
+          <div className="label">Counts as</div>
+          <input
+            id="itemCountsAs"
+            type="text"
+            list="itemCountsAsList"
+            value={newItemCountsAs}
+            onChange={(event) => setNewItemCountsAs(event.target.value)}
+          />
+          {!loading && !error && (
+            <datalist id="itemCountsAsList">
+              {data.items.map((item) => (
+                <option key={item.id}>{item.name}</option>
+              ))}
+            </datalist>
+          )}
+        </label>
+      </Row>
+
       <div>
         <button type="submit">Save</button>
       </div>
@@ -140,6 +162,7 @@ const ADD_INVENTORY_ITEM_MUTATION = gql`
     $amount: String
     $expiration: String
     $defaultShelflife: Int
+    $countsAs: String
   ) {
     addInventoryItem(
       name: $name
@@ -147,12 +170,17 @@ const ADD_INVENTORY_ITEM_MUTATION = gql`
       amount: $amount
       expiration: $expiration
       defaultShelflife: $defaultShelflife
+      countsAs: $countsAs
     ) {
       id
       item {
         id
         name
         default_shelflife
+        countsAs {
+          id
+          name
+        }
       }
       add_date
       amount
