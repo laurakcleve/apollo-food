@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Query } from 'react-apollo'
+import { useQuery } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 import styled from 'styled-components'
 
@@ -8,32 +8,28 @@ import DishListItem from './DishListItem'
 
 const Dishes = () => {
   const [selectedDishID, setSelectedDishID] = useState(null)
+  const { loading, error, data } = useQuery(DISHES_QUERY)
+
+  if (loading) return <p>Loading...</p>
+  if (error) return <p>Error</p>
 
   return (
     <StyledDishes>
       <h1>Dishes</h1>
-      <Query query={DISHES_QUERY}>
-        {({ data, loading, error }) => {
-          if (loading) return <p>Loading...</p>
-          if (error) return <p>Error</p>
-
-          return (
-            <DishList>
-              <div>
-                {data.dishes.map((dish) => (
-                  <DishListItem
-                    key={dish.id}
-                    dish={dish}
-                    selectedDishID={selectedDishID}
-                    setSelectedDishID={setSelectedDishID}
-                  />
-                ))}
-              </div>
-            </DishList>
-          )
-        }}
-      </Query>
-
+      return (
+      <DishList>
+        <div>
+          {data.dishes.map((dish) => (
+            <DishListItem
+              key={dish.id}
+              dish={dish}
+              selectedDishID={selectedDishID}
+              setSelectedDishID={setSelectedDishID}
+            />
+          ))}
+        </div>
+      </DishList>
+      )
       <FormAdd DISHES_QUERY={DISHES_QUERY} />
     </StyledDishes>
   )

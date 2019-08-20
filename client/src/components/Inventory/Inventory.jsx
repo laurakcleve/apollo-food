@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { Query, withApollo } from 'react-apollo'
+import { useQuery } from '@apollo/react-hooks'
+import { withApollo } from 'react-apollo'
 import { gql } from 'apollo-boost'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
@@ -55,11 +56,14 @@ const Inventory = ({ client }) => {
     newSortBy = currentSortBy,
     changeSort = false,
   }) => {
+    console.log('Sorting by', newSortBy)
+
     setCurrentSortBy(newSortBy)
 
     const { inventoryItems } = client.readQuery({
       query: INVENTORY_ITEMS_QUERY,
     })
+    console.log('Sorting these items:', inventoryItems)
 
     let sortedItems = [].concat(inventoryItems)
     let newOrder = prevOrder
@@ -97,64 +101,56 @@ const Inventory = ({ client }) => {
     })
   }
 
-  return (
-    <>
-      <Query
-        query={INVENTORY_ITEMS_QUERY}
-        onCompleted={() => {
-          if (!isSorted) sort({})
-        }}
-      >
-        {({ data, loading, error }) => {
-          if (loading) return <p>Loading...</p>
-          if (error) return <p>Error</p>
+  const { loading, error, data } = useQuery(INVENTORY_ITEMS_QUERY, {
+    onCompleted: () => {
+      console.log('query completed in Inventory', isSorted)
+      if (!isSorted) sort({})
+    },
+  })
 
-          return (
-            <StyledInventory>
-              <h1>Inventory</h1>
-              <InventoryItemList>
-                <div style={{ display: 'flex' }}>
-                  <div
-                    role="button"
-                    tabIndex="-1"
-                    className="column column--name"
-                    onClick={() => sort({ newSortBy: 'name', changeSort: true })}
-                  >
-                    Name
-                  </div>
-                  <div
-                    role="button"
-                    tabIndex="-1"
-                    className="column column--expiration"
-                    onClick={() =>
-                      sort({ newSortBy: 'expiration', changeSort: true })
-                    }
-                  >
-                    Expiration
-                  </div>
-                  <div className="column column--delete" />
-                </div>
-                {data.inventoryItems.map((inventoryItem) => (
-                  <InventoryListItem
-                    key={inventoryItem.id}
-                    inventoryItem={inventoryItem}
-                    INVENTORY_ITEMS_QUERY={INVENTORY_ITEMS_QUERY}
-                    setIsSorted={setIsSorted}
-                    selectedItemID={selectedItemID}
-                    setSelectedItemID={setSelectedItemID}
-                  />
-                ))}
-              </InventoryItemList>
-              <FormAdd
-                client={client}
-                setIsSorted={setIsSorted}
-                INVENTORY_ITEMS_QUERY={INVENTORY_ITEMS_QUERY}
-              />
-            </StyledInventory>
-          )
-        }}
-      </Query>
-    </>
+  if (loading) return <p>Loading...</p>
+  if (error) return <p>Error</p>
+
+  return (
+    <StyledInventory>
+      <h1>Inventory</h1>
+      <InventoryItemList>
+        <div style={{ display: 'flex' }}>
+          <div
+            role="button"
+            tabIndex="-1"
+            className="column column--name"
+            onClick={() => sort({ newSortBy: 'name', changeSort: true })}
+          >
+            Name
+          </div>
+          <div
+            role="button"
+            tabIndex="-1"
+            className="column column--expiration"
+            onClick={() => sort({ newSortBy: 'expiration', changeSort: true })}
+          >
+            Expiration
+          </div>
+          <div className="column column--delete" />
+        </div>
+        {data.inventoryItems.map((inventoryItem) => (
+          <InventoryListItem
+            key={inventoryItem.id}
+            inventoryItem={inventoryItem}
+            INVENTORY_ITEMS_QUERY={INVENTORY_ITEMS_QUERY}
+            setIsSorted={setIsSorted}
+            selectedItemID={selectedItemID}
+            setSelectedItemID={setSelectedItemID}
+          />
+        ))}
+      </InventoryItemList>
+      <FormAdd
+        client={client}
+        setIsSorted={setIsSorted}
+        INVENTORY_ITEMS_QUERY={INVENTORY_ITEMS_QUERY}
+      />
+    </StyledInventory>
   )
 }
 

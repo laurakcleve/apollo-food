@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Query, Mutation } from 'react-apollo'
+import { useQuery, useMutation } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 import PropTypes from 'prop-types'
 
@@ -16,6 +16,18 @@ const FormAdd = ({ DISHES_QUERY }) => {
       ],
     },
   ])
+
+  const { loading, error, data } = useQuery(ITEMS_QUERY)
+  const [addDish] = useMutation(ADD_DISH_MUTATION, {
+    refetchQueries: [
+      {
+        query: DISHES_QUERY,
+      },
+    ],
+  })
+
+  if (loading) return <p>Loading...</p>
+  if (error) return <p>Error</p>
 
   const addIngredientSet = () => {
     const newIngredientSets = [...ingredientSets]
@@ -61,15 +73,20 @@ const FormAdd = ({ DISHES_QUERY }) => {
     setIngredientSets(newIngredientSets)
   }
 
-  const submitDish = (event, addDish) => {
-    event.preventDefault()
-    if (name) addDish()
-  }
-
   return (
-    <form>
+    <form
+      onSubmit={(event) => {
+        event.preventDefault()
+        if (name)
+          addDish({
+            variables: {
+              name,
+              ingredientSets,
+            },
+          })
+      }}
+    >
       <h3>Add new dish</h3>
-
       <label htmlFor="name">
         <span>Name</span>
         <input
@@ -79,76 +96,53 @@ const FormAdd = ({ DISHES_QUERY }) => {
           onChange={(event) => setName(event.target.value)}
         />
       </label>
-
-      <Query query={ITEMS_QUERY}>
-        {({ data, loading, error }) => {
-          if (loading) return <p>Loading...</p>
-          if (error) return <p>Error</p>
-
-          return (
-            <>
-              {ingredientSets.map((ingredientSet, ingredientSetIndex) => (
-                <div key={ingredientSet.id}>
-                  <span>Ingredient</span>
-                  {ingredientSet.ingredients.map((ingredient, ingredientIndex) => (
-                    <React.Fragment key={ingredient.id}>
-                      <input
-                        type="text"
-                        list="itemList"
-                        value={ingredientSets[ingredientSetIndex][ingredientIndex]}
-                        onChange={(event) =>
-                          setIngredient(event, ingredientSetIndex, ingredientIndex)
-                        }
-                      />
-                      <datalist id="itemList">
-                        {data.items.map((item) => (
-                          <option key={item.id}>{item.name}</option>
-                        ))}
-                      </datalist>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          removeSubstitute(ingredientSetIndex, ingredientIndex)
-                        }
-                      >
-                        X
-                      </button>
-                    </React.Fragment>
+      return (
+      <>
+        {ingredientSets.map((ingredientSet, ingredientSetIndex) => (
+          <div key={ingredientSet.id}>
+            <span>Ingredient</span>
+            {ingredientSet.ingredients.map((ingredient, ingredientIndex) => (
+              <React.Fragment key={ingredient.id}>
+                <input
+                  type="text"
+                  list="itemList"
+                  value={ingredientSets[ingredientSetIndex][ingredientIndex]}
+                  onChange={(event) =>
+                    setIngredient(event, ingredientSetIndex, ingredientIndex)
+                  }
+                />
+                <datalist id="itemList">
+                  {data.items.map((item) => (
+                    <option key={item.id}>{item.name}</option>
                   ))}
-                  <button
-                    type="button"
-                    onClick={() => addSubstitute(ingredientSetIndex)}
-                  >
-                    Add substitute
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => removeIngredientSet(ingredientSetIndex)}
-                  >
-                    Remove
-                  </button>
-                </div>
-              ))}
-            </>
-          )
-        }}
-      </Query>
-
+                </datalist>
+                <button
+                  type="button"
+                  onClick={() =>
+                    removeSubstitute(ingredientSetIndex, ingredientIndex)
+                  }
+                >
+                  X
+                </button>
+              </React.Fragment>
+            ))}
+            <button type="button" onClick={() => addSubstitute(ingredientSetIndex)}>
+              Add substitute
+            </button>
+            <button
+              type="button"
+              onClick={() => removeIngredientSet(ingredientSetIndex)}
+            >
+              Remove
+            </button>
+          </div>
+        ))}
+      </>
+      )
       <button type="button" onClick={addIngredientSet}>
         Add Item Set
       </button>
-
-      <Mutation
-        mutation={ADD_DISH_MUTATION}
-        variables={{ name, ingredientSets }}
-        refetchQueries={[{ query: DISHES_QUERY }]}
-      >
-        {(addDish) => (
-          <button type="submit" onClick={(event) => submitDish(event, addDish)}>
-            Save
-          </button>
-        )}
-      </Mutation>
+      <button type="submit">Save</button>
     </form>
   )
 }

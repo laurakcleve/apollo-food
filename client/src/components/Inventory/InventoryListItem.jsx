@@ -1,25 +1,11 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import { Mutation } from 'react-apollo'
+import { useMutation } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 import moment from 'moment'
 
 import Details from './Details'
-
-const DELETE_INVENTORY_ITEM_MUTATION = gql`
-  mutation deleteInventoryItem($itemID: ID!) {
-    deleteInventoryItem(id: $itemID)
-  }
-`
-
-const ListItem = styled.div``
-
-const TitleBar = styled.div`
-  display: flex;
-`
-
-const DeleteButton = styled.button``
 
 const InventoryListItem = ({
   inventoryItem,
@@ -28,6 +14,17 @@ const InventoryListItem = ({
   selectedItemID,
   setSelectedItemID,
 }) => {
+  const [deleteInventoryItem] = useMutation(DELETE_INVENTORY_ITEM_MUTATION, {
+    refetchQueries: [
+      {
+        query: INVENTORY_ITEMS_QUERY,
+      },
+    ],
+    onCompleted: () => {
+      setIsSorted(false)
+    },
+  })
+
   const toggleOpen = () => {
     if (selectedItemID === inventoryItem.id) {
       setSelectedItemID(null)
@@ -55,20 +52,14 @@ const InventoryListItem = ({
         </div>
 
         <div className="column column--delete">
-          <Mutation
-            mutation={DELETE_INVENTORY_ITEM_MUTATION}
-            variables={{ itemID: inventoryItem.id }}
-            refetchQueries={[{ query: INVENTORY_ITEMS_QUERY }]}
-            onCompleted={() => {
-              setIsSorted(false)
-            }}
+          <DeleteButton
+            type="button"
+            onClick={() =>
+              deleteInventoryItem({ variables: { itemID: inventoryItem.id } })
+            }
           >
-            {(deleteInventoryItem) => (
-              <DeleteButton type="button" onClick={deleteInventoryItem}>
-                Delete
-              </DeleteButton>
-            )}
-          </Mutation>
+            Delete
+          </DeleteButton>
         </div>
       </TitleBar>
       {selectedItemID === inventoryItem.id && (
@@ -81,6 +72,20 @@ const InventoryListItem = ({
     </ListItem>
   )
 }
+
+const DELETE_INVENTORY_ITEM_MUTATION = gql`
+  mutation deleteInventoryItem($itemID: ID!) {
+    deleteInventoryItem(id: $itemID)
+  }
+`
+
+const ListItem = styled.div``
+
+const TitleBar = styled.div`
+  display: flex;
+`
+
+const DeleteButton = styled.button``
 
 InventoryListItem.propTypes = {
   inventoryItem: PropTypes.shape({

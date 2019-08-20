@@ -1,59 +1,53 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { Query, Mutation } from 'react-apollo'
+import { useQuery, useMutation } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 
 const Item = ({ match, history }) => {
   const itemID = match.params.id
 
-  const ITEM_QUERY = gql`
-    query item($id: ID!) {
-      item(id: $id) {
-        id
-        name
-      }
-    }
-  `
+  const { loading, error, data } = useQuery(ITEM_QUERY, {
+    variables: { id: itemID },
+  })
+  const [deleteItem] = useMutation(DELETE_ITEM_MUTATION, {
+    onCompleted: () => history.push('/items'),
+  })
 
-  const DELETE_ITEM_MUTATION = gql`
-    mutation deleteItem($itemID: ID!) {
-      deleteItem(id: $itemID)
-    }
-  `
+  if (loading) return <p>Loading...</p>
+  if (error) return <p>Error</p>
 
   return (
-    <Query query={ITEM_QUERY} variables={{ id: itemID }}>
-      {({ data, loading, error }) => {
-        if (loading) return <p>Loading...</p>
-        if (error) return <p>Error</p>
-        return (
-          <>
-            <div>
-              <h1>{data.item.name}</h1>
-            </div>
-            <Mutation
-              mutation={DELETE_ITEM_MUTATION}
-              variables={{ itemID: data.item.id }}
-              onCompleted={() => history.push('/items')}
-            >
-              {(deleteItem) => (
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (window.confirm('Are you sure you want to delete this item?'))
-                      deleteItem()
-                  }}
-                >
-                  Delete
-                </button>
-              )}
-            </Mutation>
-          </>
-        )
-      }}
-    </Query>
+    <>
+      <div>
+        <h1>{data.item.name}</h1>
+      </div>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault()
+          if (window.confirm('Are you sure you want to delete this item?'))
+            deleteItem({ variables: { itemID: data.item.id } })
+        }}
+      >
+        <button type="submit">Delete</button>
+      </form>
+    </>
   )
 }
+
+const ITEM_QUERY = gql`
+  query item($id: ID!) {
+    item(id: $id) {
+      id
+      name
+    }
+  }
+`
+
+const DELETE_ITEM_MUTATION = gql`
+  mutation deleteItem($itemID: ID!) {
+    deleteItem(id: $itemID)
+  }
+`
 
 Item.propTypes = {
   history: PropTypes.shape({

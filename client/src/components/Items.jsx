@@ -1,9 +1,32 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Link } from 'react-router-dom'
 import { gql } from 'apollo-boost'
-import { Query, Mutation } from 'react-apollo'
+import { useQuery } from '@apollo/react-hooks'
 
-import ItemInput from './ItemInput'
+const Items = () => {
+  const { loading, error, data } = useQuery(ITEMS_QUERY, {
+    fetchPolicy: 'network-only',
+  })
+
+  if (loading) return <p>Loading...</p>
+  if (error) return <p>Error</p>
+
+  return (
+    <>
+      <div>
+        <h1>Items</h1>
+        <Link to="/">Home</Link>
+        <ul>
+          {data.items.map((item) => (
+            <li key={item.id}>
+              <Link to={`/item/${item.id}`}>{item.name}</Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </>
+  )
+}
 
 const ITEMS_QUERY = gql`
   query items {
@@ -13,72 +36,5 @@ const ITEMS_QUERY = gql`
     }
   }
 `
-
-const ADD_ITEM_MUTATION = gql`
-  mutation addItem($itemName: String!) {
-    addItem(name: $itemName) {
-      id
-      name
-    }
-  }
-`
-
-const Items = () => {
-  const [newItemName, setNewItemName] = useState('')
-
-  const submitItem = (addItem, event) => {
-    event.preventDefault()
-    if (newItemName) addItem()
-  }
-
-  return (
-    <>
-      <Query query={ITEMS_QUERY} fetchPolicy="network-only">
-        {({ data, loading, error }) => {
-          if (loading) return <p>Loading...</p>
-          if (error) return <p>Error</p>
-
-          return (
-            <div>
-              <h1>Items</h1>
-              <Link to="/">Home</Link>
-              <ul>
-                {data.items.map((item) => (
-                  <li key={item.id}>
-                    <Link to={`/item/${item.id}`}>{item.name}</Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )
-        }}
-      </Query>
-
-      <form>
-        <span>Add an item:</span>
-        <ItemInput newItemName={newItemName} setNewItemName={setNewItemName} />
-
-        <Mutation
-          mutation={ADD_ITEM_MUTATION}
-          variables={{ itemName: newItemName }}
-          update={(cache, { data: { addItem } }) => {
-            const { items } = cache.readQuery({ query: ITEMS_QUERY })
-            cache.writeQuery({
-              query: ITEMS_QUERY,
-              data: { items: items.concat([addItem]) },
-            })
-          }}
-          onCompleted={() => setNewItemName('')}
-        >
-          {(addItem) => (
-            <button type="submit" onClick={(event) => submitItem(addItem, event)}>
-              Save
-            </button>
-          )}
-        </Mutation>
-      </form>
-    </>
-  )
-}
 
 export default Items

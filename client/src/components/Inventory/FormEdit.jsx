@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
-import { Mutation } from 'react-apollo'
+import { useMutation } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 import {
   unixTimeToFormatted,
@@ -21,13 +21,32 @@ const FormEdit = ({
   )
   const [daysLeft, setDaysLeft] = useState(getDaysLeft(inventoryItem.expiration))
 
-  const saveInventoryItem = (updateInventoryItem, event) => {
-    event.preventDefault()
-    updateInventoryItem()
-  }
+  const [updateInventoryItem] = useMutation(UPDATE_INVENTORY_ITEM_MUTATION, {
+    refetchQueries: [
+      {
+        query: INVENTORY_ITEMS_QUERY,
+      },
+    ],
+    onCompleted: () => {
+      setIsEditing(false)
+      setIsSorted(false)
+    },
+  })
 
   return (
-    <form>
+    <form
+      onSubmit={(event) => {
+        event.preventDefault()
+        updateInventoryItem({
+          variables: {
+            id: inventoryItem.id,
+            addDate: formattedTimeToPg(addDate),
+            amount,
+            expiration: getExpiration(daysLeft),
+          },
+        })
+      }}
+    >
       <label htmlFor="amount">
         <span>Amount</span>
         <input
@@ -55,29 +74,7 @@ const FormEdit = ({
         />
       </label>
 
-      <Mutation
-        mutation={UPDATE_INVENTORY_ITEM_MUTATION}
-        variables={{
-          id: inventoryItem.id,
-          addDate: formattedTimeToPg(addDate),
-          amount,
-          expiration: getExpiration(daysLeft),
-        }}
-        refetchQueries={[{ query: INVENTORY_ITEMS_QUERY }]}
-        onCompleted={() => {
-          setIsEditing(false)
-          setIsSorted(false)
-        }}
-      >
-        {(updateInventoryItem) => (
-          <button
-            type="submit"
-            onClick={(event) => saveInventoryItem(updateInventoryItem, event)}
-          >
-            Save
-          </button>
-        )}
-      </Mutation>
+      <button type="submit">Save</button>
     </form>
   )
 }
