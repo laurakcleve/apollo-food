@@ -55,6 +55,7 @@ const Details = ({ inventoryItem, INVENTORY_ITEMS_QUERY, setIsSorted }) => {
 }
 
 const StyledDetails = styled.div`
+  padding: 0 20px;
   border: 1px solid #ccc;
 `
 

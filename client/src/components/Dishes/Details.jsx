@@ -20,6 +20,7 @@ const Details = ({ dish }) => {
 }
 
 const StyledDetails = styled.div`
+  padding: 0 20px;
   border: 1px solid #ccc;
 `
 
