@@ -96,49 +96,43 @@ const FormAdd = ({ DISHES_QUERY }) => {
           onChange={(event) => setName(event.target.value)}
         />
       </label>
-      return (
-      <>
-        {ingredientSets.map((ingredientSet, ingredientSetIndex) => (
-          <div key={ingredientSet.id}>
-            <span>Ingredient</span>
-            {ingredientSet.ingredients.map((ingredient, ingredientIndex) => (
-              <React.Fragment key={ingredient.id}>
-                <input
-                  type="text"
-                  list="itemList"
-                  value={ingredientSets[ingredientSetIndex][ingredientIndex]}
-                  onChange={(event) =>
-                    setIngredient(event, ingredientSetIndex, ingredientIndex)
-                  }
-                />
-                <datalist id="itemList">
-                  {data.items.map((item) => (
-                    <option key={item.id}>{item.name}</option>
-                  ))}
-                </datalist>
-                <button
-                  type="button"
-                  onClick={() =>
-                    removeSubstitute(ingredientSetIndex, ingredientIndex)
-                  }
-                >
-                  X
-                </button>
-              </React.Fragment>
-            ))}
-            <button type="button" onClick={() => addSubstitute(ingredientSetIndex)}>
-              Add substitute
-            </button>
-            <button
-              type="button"
-              onClick={() => removeIngredientSet(ingredientSetIndex)}
-            >
-              Remove
-            </button>
-          </div>
-        ))}
-      </>
-      )
+      {ingredientSets.map((ingredientSet, ingredientSetIndex) => (
+        <div key={ingredientSet.id}>
+          <span>Ingredient</span>
+          {ingredientSet.ingredients.map((ingredient, ingredientIndex) => (
+            <React.Fragment key={ingredient.id}>
+              <input
+                type="text"
+                list="itemList"
+                value={ingredientSets[ingredientSetIndex][ingredientIndex]}
+                onChange={(event) =>
+                  setIngredient(event, ingredientSetIndex, ingredientIndex)
+                }
+              />
+              <datalist id="itemList">
+                {data.items.map((item) => (
+                  <option key={item.id}>{item.name}</option>
+                ))}
+              </datalist>
+              <button
+                type="button"
+                onClick={() => removeSubstitute(ingredientSetIndex, ingredientIndex)}
+              >
+                X
+              </button>
+            </React.Fragment>
+          ))}
+          <button type="button" onClick={() => addSubstitute(ingredientSetIndex)}>
+            Add substitute
+          </button>
+          <button
+            type="button"
+            onClick={() => removeIngredientSet(ingredientSetIndex)}
+          >
+            Remove
+          </button>
+        </div>
+      ))}
       <button type="button" onClick={addIngredientSet}>
         Add Item Set
       </button>

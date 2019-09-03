@@ -16,7 +16,6 @@ const Dishes = () => {
   return (
     <StyledDishes>
       <h1>Dishes</h1>
-      return (
       <DishList>
         <div>
           {data.dishes.map((dish) => (
@@ -29,7 +28,6 @@ const Dishes = () => {
           ))}
         </div>
       </DishList>
-      )
       <FormAdd DISHES_QUERY={DISHES_QUERY} />
     </StyledDishes>
   )
