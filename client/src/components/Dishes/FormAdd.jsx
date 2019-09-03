@@ -4,8 +4,7 @@ import { gql } from 'apollo-boost'
 import PropTypes from 'prop-types'
 
 const FormAdd = ({ DISHES_QUERY }) => {
-  const [name, setName] = useState('')
-  const [ingredientSets, setIngredientSets] = useState([
+  const initialIngredientSets = [
     {
       id: Date.now(),
       ingredients: [
@@ -15,7 +14,10 @@ const FormAdd = ({ DISHES_QUERY }) => {
         },
       ],
     },
-  ])
+  ]
+
+  const [name, setName] = useState('')
+  const [ingredientSets, setIngredientSets] = useState(initialIngredientSets)
 
   const { loading, error, data } = useQuery(ITEMS_QUERY)
   const [addDish] = useMutation(ADD_DISH_MUTATION, {
@@ -24,10 +26,18 @@ const FormAdd = ({ DISHES_QUERY }) => {
         query: DISHES_QUERY,
       },
     ],
+    onCompleted: () => {
+      resetInputs()
+    },
   })
 
   if (loading) return <p>Loading...</p>
   if (error) return <p>Error</p>
+
+  const resetInputs = () => {
+    setName('')
+    setIngredientSets(initialIngredientSets)
+  }
 
   const addIngredientSet = () => {
     const newIngredientSets = [...ingredientSets]
