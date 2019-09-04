@@ -7,12 +7,11 @@ import moment from 'moment'
 import FormAddDate from './FormAddDate'
 
 const Details = ({ dish, DISHES_QUERY }) => {
+  const [deleteDish] = useMutation(DELETE_DISH_MUTATION, {
+    refetchQueries: [{ query: DISHES_QUERY }],
+  })
   const [deleteDishDate] = useMutation(DELETE_DISH_DATE_MUTATION, {
-    refetchQueries: [
-      {
-        query: DISHES_QUERY,
-      },
-    ],
+    refetchQueries: [{ query: DISHES_QUERY }],
   })
 
   return (
@@ -46,11 +45,25 @@ const Details = ({ dish, DISHES_QUERY }) => {
       </Dates>
       <Actions>
         <p>(Edit button)</p>
-        <p>(Delete button)</p>
+        <button
+          type="button"
+          onClick={() => {
+            if (window.confirm('Are you sure you want to delete this dish?'))
+              deleteDish({ variables: { id: dish.id } })
+          }}
+        >
+          Delete
+        </button>
       </Actions>
     </StyledDetails>
   )
 }
+
+const DELETE_DISH_MUTATION = gql`
+  mutation deleteDish($id: ID!) {
+    deleteDish(id: $id)
+  }
+`
 
 const DELETE_DISH_DATE_MUTATION = gql`
   mutation deleteDishDate($id: ID!) {
