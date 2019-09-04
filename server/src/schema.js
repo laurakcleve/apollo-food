@@ -51,6 +51,7 @@ const typeDefs = gql`
     id: ID!
     name: String!
     ingredientSets: [IngredientSet]
+    dates: [DishDate]
   }
 
   type IngredientSet {
@@ -62,6 +63,11 @@ const typeDefs = gql`
   type Ingredient {
     id: ID!
     item: Item!
+  }
+
+  type DishDate {
+    id: ID!
+    date: String!
   }
 
   input IngredientSetInput {

@@ -48,6 +48,10 @@ const DISHES_QUERY = gql`
           }
         }
       }
+      dates {
+        id
+        date
+      }
     }
   }
 `

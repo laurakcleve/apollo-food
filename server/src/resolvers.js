@@ -58,6 +58,8 @@ const resolvers = {
   Dish: {
     ingredientSets: (Dish, __, { dataSources }) =>
       dataSources.dishesAPI.getDishIngredientSets({ dishID: Dish.id }),
+    dates: (Dish, __, { dataSources }) =>
+      dataSources.dishesAPI.getDishDates({ dishID: Dish.id }),
   },
 
   IngredientSet: {

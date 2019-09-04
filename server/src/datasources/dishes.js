@@ -63,6 +63,17 @@ class DishesAPI extends DataSource {
       .then((results) => Promise.resolve(results.rows[0]))
   }
 
+  getDishDates({ dishID }) {
+    const queryString = `
+      SELECT id, date
+      FROM dish_date 
+      WHERE dish_id = $1
+    `
+    return client
+      .query(queryString, [Number(dishID)])
+      .then((results) => Promise.resolve(results.rows))
+  }
+
   addDish({ name, ingredientSets }) {
     // Building the return object
     const newDish = {}
