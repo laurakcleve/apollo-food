@@ -29,6 +29,7 @@ const typeDefs = gql`
     ): InventoryItem!
     deleteInventoryItem(id: ID!): Int
     addDish(name: String!, ingredientSets: [IngredientSetInput]!): Dish!
+    updateDish(id: ID!, name: String!, ingredientSets: [IngredientSetInput]!): Dish!
     deleteDish(id: ID!): Int
     addDishDate(dishID: ID!, date: String!): DishDate!
     deleteDishDate(id: ID!): Int
@@ -79,6 +80,11 @@ const typeDefs = gql`
   }
 
   input IngredientInput {
+    id: ID!
+    item: IngredientItemInput!
+  }
+
+  input IngredientItemInput {
     id: ID!
     name: String!
   }

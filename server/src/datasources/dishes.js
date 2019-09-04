@@ -68,7 +68,7 @@ class DishesAPI extends DataSource {
       SELECT id, date
       FROM dish_date 
       WHERE dish_id = $1
-      ORDER BY dish_date DESC
+      ORDER BY date DESC
     `
     return client
       .query(queryString, [Number(dishID)])
@@ -139,7 +139,7 @@ class DishesAPI extends DataSource {
                   `
                   return client
                     .query(newIngredientQueryString, [
-                      ingredient.name,
+                      ingredient.item.name,
                       newIngredientSetID,
                     ])
                     .then((newIngredientresults) => {
@@ -163,6 +163,103 @@ class DishesAPI extends DataSource {
         })
       ).then(() => Promise.resolve(newDish))
     })
+  }
+
+  updateDish({ id, name, ingredientSets }) {
+    // Building the return object
+    const updatedDish = { id, name }
+
+    const queryString = `
+      DELETE FROM ingredient_set
+      WHERE parent_item_id = $1
+    `
+    return client
+      .query(queryString, [Number(id)])
+      .then(() => {
+        const updateDishQueryString = `
+          UPDATE item
+          SET name = $2
+          WHERE id = $1
+          RETURNING *
+        `
+        return client.query(updateDishQueryString, [Number(id), name])
+      })
+      .then(() => {
+        // Building the return object
+        updatedDish.ingredientSets = []
+
+        return Promise.all(
+          ingredientSets.map((ingredientSet, ingredientSetIndex) => {
+            // Building the return object
+            updatedDish.ingredientSets.push({})
+
+            const newIngredientSetQueryString = `
+            INSERT INTO ingredient_set(parent_item_id)
+            VALUES($1)
+            RETURNING *
+          `
+            return client
+              .query(newIngredientSetQueryString, [Number(id)])
+              .then((newIngredientSetResults) => {
+                const newIngredientSetID = newIngredientSetResults.rows[0].id
+
+                // Building the return object
+                updatedDish.ingredientSets[
+                  ingredientSetIndex
+                ].id = newIngredientSetID
+                updatedDish.ingredientSets[ingredientSetIndex].ingredients = []
+
+                return Promise.all(
+                  ingredientSet.ingredients.map((ingredient, ingredientIndex) => {
+                    const newIngredientQueryString = `
+                    WITH new_item_id AS (
+                      INSERT INTO item(name, item_type)
+                      SELECT $1, 'baseItem'
+                      WHERE NOT EXISTS (
+                        SELECT 1
+                        FROM item
+                        WHERE name = $1
+                      )
+                      RETURNING id
+                    ), existing_item_id AS (
+                      SELECT id
+                      FROM item
+                      WHERE name = $1
+                    ), item_id_for_insert AS (
+                      SELECT id 
+                      FROM new_item_id 
+                      UNION SELECT id FROM existing_item_id
+                    )
+                    INSERT INTO ingredient(ingredient_set_id, item_id)
+                    SELECT $2 AS ingredient_set_id, id AS item_id
+                    FROM (SELECT id FROM item_id_for_insert) AS the_id
+                    RETURNING *
+                  `
+                    return client
+                      .query(newIngredientQueryString, [
+                        ingredient.item.name,
+                        newIngredientSetID,
+                      ])
+                      .then((newIngredientresults) => {
+                        const newIngredient = newIngredientresults.rows[0]
+
+                        // Building the return object
+                        updatedDish.ingredientSets[ingredientSetIndex].ingredients[
+                          ingredientIndex
+                        ] = {
+                          id: newIngredient.id,
+                          item: {
+                            id: newIngredient.item_id,
+                            name: ingredient.name,
+                          },
+                        }
+                      })
+                  })
+                )
+              })
+          })
+        ).then(() => Promise.resolve(updatedDish))
+      })
   }
 
   deleteDish({ id }) {

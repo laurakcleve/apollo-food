@@ -1,45 +1,35 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useQuery, useMutation } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 import PropTypes from 'prop-types'
 
-const FormAdd = ({ DISHES_QUERY }) => {
-  const initialIngredientSets = [
-    {
-      id: Date.now(),
-      ingredients: [
-        {
-          id: Date.now(),
-          item: {
-            id: Date.now(),
-            name: '',
-          },
-        },
-      ],
-    },
-  ]
+const FormEdit = ({ setIsEditing, dish }) => {
+  const [name, setName] = useState(dish.name)
+  const [ingredientSets, setIngredientSets] = useState([]) // checking this for reference, need to copy?
 
-  const [name, setName] = useState('')
-  const [ingredientSets, setIngredientSets] = useState(initialIngredientSets)
-
-  const { loading, error, data } = useQuery(ITEMS_QUERY)
-  const [addDish] = useMutation(ADD_DISH_MUTATION, {
-    refetchQueries: [
-      {
-        query: DISHES_QUERY,
-      },
-    ],
-    onCompleted: () => {
-      resetInputs()
-    },
+  const { data } = useQuery(ITEMS_QUERY)
+  const [updateDish] = useMutation(UPDATE_DISH_MUTATION, {
+    onCompleted: () => setIsEditing(false),
   })
 
-  if (loading) return <p>Loading...</p>
-  if (error) return <p>Error</p>
+  useEffect(() => {
+    setIngredientSets(strip(dish.ingredientSets))
+  }, [dish.ingredientSets])
 
-  const resetInputs = () => {
-    setName('')
-    setIngredientSets(initialIngredientSets)
+  const strip = (originalIngredientSets) => {
+    const strippedIngredientSets = originalIngredientSets.map((ingredientSet) => {
+      const { __typename, ...newIngredientSet } = ingredientSet
+      newIngredientSet.ingredients = newIngredientSet.ingredients.map(
+        (ingredient) => {
+          const { __typename: ingredientTypename, ...newIngredient } = ingredient
+          const { __typename: itemTypename, ...newItem } = ingredient.item
+          newIngredient.item = newItem
+          return newIngredient
+        }
+      )
+      return newIngredientSet
+    })
+    return strippedIngredientSets
   }
 
   const addIngredientSet = () => {
@@ -96,16 +86,9 @@ const FormAdd = ({ DISHES_QUERY }) => {
     <form
       onSubmit={(event) => {
         event.preventDefault()
-        if (name)
-          addDish({
-            variables: {
-              name,
-              ingredientSets,
-            },
-          })
+        updateDish({ variables: { id: dish.id, name, ingredientSets } })
       }}
     >
-      <h3>Add new dish</h3>
       <label htmlFor="name">
         <span>Name</span>
         <input
@@ -115,6 +98,7 @@ const FormAdd = ({ DISHES_QUERY }) => {
           onChange={(event) => setName(event.target.value)}
         />
       </label>
+
       {ingredientSets.map((ingredientSet, ingredientSetIndex) => (
         <div key={ingredientSet.id}>
           <span>Ingredient</span>
@@ -172,9 +156,13 @@ const ITEMS_QUERY = gql`
   }
 `
 
-const ADD_DISH_MUTATION = gql`
-  mutation addDish($name: String!, $ingredientSets: [IngredientSetInput]!) {
-    addDish(name: $name, ingredientSets: $ingredientSets) {
+const UPDATE_DISH_MUTATION = gql`
+  mutation updateDish(
+    $id: ID!
+    $name: String!
+    $ingredientSets: [IngredientSetInput]!
+  ) {
+    updateDish(id: $id, name: $name, ingredientSets: $ingredientSets) {
       id
       name
       ingredientSets {
@@ -191,8 +179,32 @@ const ADD_DISH_MUTATION = gql`
   }
 `
 
-FormAdd.propTypes = {
-  DISHES_QUERY: PropTypes.shape({}).isRequired,
+FormEdit.propTypes = {
+  setIsEditing: PropTypes.func.isRequired,
+  dish: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    dates: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        date: PropTypes.string.isRequired,
+      })
+    ),
+    ingredientSets: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        ingredients: PropTypes.arrayOf(
+          PropTypes.shape({
+            id: PropTypes.string.isRequired,
+            item: PropTypes.shape({
+              id: PropTypes.string.isRequired,
+              name: PropTypes.string.isRequired,
+            }).isRequired,
+          })
+        ).isRequired,
+      })
+    ).isRequired,
+  }).isRequired,
 }
 
-export default FormAdd
+export default FormEdit
