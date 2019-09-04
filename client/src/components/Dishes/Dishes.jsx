@@ -22,6 +22,7 @@ const Dishes = () => {
             <DishListItem
               key={dish.id}
               dish={dish}
+              DISHES_QUERY={DISHES_QUERY}
               selectedDishID={selectedDishID}
               setSelectedDishID={setSelectedDishID}
             />

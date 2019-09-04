@@ -163,6 +163,17 @@ class DishesAPI extends DataSource {
       ).then(() => Promise.resolve(newDish))
     })
   }
+
+  addDishDate({ dishID, date }) {
+    const queryString = `
+      INSERT INTO dish_date(dish_id, date)
+      VALUES($1, $2)
+      RETURNING id, date
+    `
+    return client
+      .query(queryString, [Number(dishID), date])
+      .then((results) => Promise.resolve(results.rows[0]))
+  }
 }
 
 module.exports = DishesAPI
