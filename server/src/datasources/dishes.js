@@ -68,6 +68,7 @@ class DishesAPI extends DataSource {
       SELECT id, date
       FROM dish_date 
       WHERE dish_id = $1
+      ORDER BY dish_date DESC
     `
     return client
       .query(queryString, [Number(dishID)])
