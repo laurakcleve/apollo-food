@@ -1,10 +1,20 @@
 import React from 'react'
+import { useMutation } from '@apollo/react-hooks'
+import { gql } from 'apollo-boost'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import moment from 'moment'
 import FormAddDate from './FormAddDate'
 
 const Details = ({ dish, DISHES_QUERY }) => {
+  const [deleteDishDate] = useMutation(DELETE_DISH_DATE_MUTATION, {
+    refetchQueries: [
+      {
+        query: DISHES_QUERY,
+      },
+    ],
+  })
+
   return (
     <StyledDetails>
       <Ingredients>
@@ -22,7 +32,15 @@ const Details = ({ dish, DISHES_QUERY }) => {
       <Dates>
         <h3>History</h3>
         {dish.dates.map((date) => (
-          <p>{moment(Number(date.date)).format('M/D/YY')}(Delete button)</p>
+          <p>
+            {moment(Number(date.date)).format('M/D/YY')}
+            <button
+              type="button"
+              onClick={() => deleteDishDate({ variables: { id: date.id } })}
+            >
+              X
+            </button>
+          </p>
         ))}
         <FormAddDate dishID={dish.id} DISHES_QUERY={DISHES_QUERY} />
       </Dates>
@@ -33,6 +51,12 @@ const Details = ({ dish, DISHES_QUERY }) => {
     </StyledDetails>
   )
 }
+
+const DELETE_DISH_DATE_MUTATION = gql`
+  mutation deleteDishDate($id: ID!) {
+    deleteDishDate(id: $id)
+  }
+`
 
 const StyledDetails = styled.div`
   padding: 0 20px;
