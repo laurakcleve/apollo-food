@@ -56,14 +56,11 @@ const Inventory = ({ client }) => {
     newSortBy = currentSortBy,
     changeSort = false,
   }) => {
-    console.log('Sorting by', newSortBy)
-
     setCurrentSortBy(newSortBy)
 
     const { inventoryItems } = client.readQuery({
       query: INVENTORY_ITEMS_QUERY,
     })
-    console.log('Sorting these items:', inventoryItems)
 
     let sortedItems = [].concat(inventoryItems)
     let newOrder = prevOrder

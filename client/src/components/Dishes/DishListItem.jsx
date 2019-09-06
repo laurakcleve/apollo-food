@@ -18,7 +18,7 @@ const DishListItem = ({ dish, DISHES_QUERY, selectedDishID, setSelectedDishID })
     <>
       <TitleBar>
         <div
-          className="column-name"
+          className="column column--name"
           role="button"
           tabIndex="-1"
           onClick={toggleOpen}
@@ -26,7 +26,7 @@ const DishListItem = ({ dish, DISHES_QUERY, selectedDishID, setSelectedDishID })
           {dish.name}
         </div>
 
-        <div>
+        <div className="column column--last-date">
           {dish.dates.length > 0 &&
             moment(Number(dish.dates[0].date)).format('M/D/YY')}
         </div>
