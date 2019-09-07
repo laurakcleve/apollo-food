@@ -82,6 +82,14 @@ const FormEdit = ({ setIsEditing, dish }) => {
     setIngredientSets(newIngredientSets)
   }
 
+  const handleCheckInput = (ingredientSetIndex) => {
+    const newIngredientSets = [...ingredientSets]
+    newIngredientSets[ingredientSetIndex].optional = !newIngredientSets[
+      ingredientSetIndex
+    ].optional
+    setIngredientSets(newIngredientSets)
+  }
+
   return (
     <form
       onSubmit={(event) => {
@@ -131,6 +139,17 @@ const FormEdit = ({ setIsEditing, dish }) => {
           <button type="button" onClick={() => addSubstitute(ingredientSetIndex)}>
             Add substitute
           </button>
+
+          <label htmlFor={`optional${ingredientSetIndex}`}>
+            <input
+              type="checkbox"
+              id={`optional${ingredientSetIndex}`}
+              checked={ingredientSet.optional}
+              onChange={() => handleCheckInput(ingredientSetIndex)}
+            />
+            <span>Optional</span>
+          </label>
+
           <button
             type="button"
             onClick={() => removeIngredientSet(ingredientSetIndex)}
@@ -167,6 +186,7 @@ const UPDATE_DISH_MUTATION = gql`
       name
       ingredientSets {
         id
+        optional
         ingredients {
           id
           item {

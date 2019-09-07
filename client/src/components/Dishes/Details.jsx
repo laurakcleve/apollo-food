@@ -27,6 +27,7 @@ const Details = ({ dish, DISHES_QUERY }) => {
                 <span key={ingredient.id}>
                   {ingredient.item.name}{' '}
                   {index === ingredientSet.ingredients.length - 1 ? '' : '/'}{' '}
+                  {ingredientSet.optional && ' (optional)'}
                 </span>
               ))}
             </p>

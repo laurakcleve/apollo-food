@@ -76,6 +76,7 @@ const typeDefs = gql`
 
   input IngredientSetInput {
     id: ID!
+    optional: Boolean!
     ingredients: [IngredientInput]!
   }
 

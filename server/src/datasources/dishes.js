@@ -87,6 +87,7 @@ class DishesAPI extends DataSource {
     return client.query(newDishQueryString, [name]).then((newDishResults) => {
       const newDishID = newDishResults.rows[0].id
       const newDishName = newDishResults.rows[0].name
+
       // Building the return object
       newDish.id = newDishID
       newDish.name = newDishName
@@ -98,17 +99,19 @@ class DishesAPI extends DataSource {
           newDish.ingredientSets.push({})
 
           const newIngredientSetQueryString = `
-            INSERT INTO ingredient_set(parent_item_id)
-            VALUES($1)
+            INSERT INTO ingredient_set(parent_item_id, optional)
+            VALUES($1, $2)
             RETURNING *
           `
           return client
-            .query(newIngredientSetQueryString, [newDishID])
+            .query(newIngredientSetQueryString, [newDishID, ingredientSet.optional])
             .then((newIngredientSetResults) => {
               const newIngredientSetID = newIngredientSetResults.rows[0].id
 
               // Building the return object
               newDish.ingredientSets[ingredientSetIndex].id = newIngredientSetID
+              newDish.ingredientSets[ingredientSetIndex].optional =
+                newIngredientSetResults.rows[0].optional
               newDish.ingredientSets[ingredientSetIndex].ingredients = []
 
               return Promise.all(
@@ -194,12 +197,15 @@ class DishesAPI extends DataSource {
             updatedDish.ingredientSets.push({})
 
             const newIngredientSetQueryString = `
-            INSERT INTO ingredient_set(parent_item_id)
-            VALUES($1)
+            INSERT INTO ingredient_set(parent_item_id, optional)
+            VALUES($1, $2)
             RETURNING *
           `
             return client
-              .query(newIngredientSetQueryString, [Number(id)])
+              .query(newIngredientSetQueryString, [
+                Number(id),
+                ingredientSet.optional,
+              ])
               .then((newIngredientSetResults) => {
                 const newIngredientSetID = newIngredientSetResults.rows[0].id
 
@@ -207,6 +213,8 @@ class DishesAPI extends DataSource {
                 updatedDish.ingredientSets[
                   ingredientSetIndex
                 ].id = newIngredientSetID
+                updatedDish.ingredientSets[ingredientSetIndex].optional =
+                  newIngredientSetResults.rows[0].optional
                 updatedDish.ingredientSets[ingredientSetIndex].ingredients = []
 
                 return Promise.all(

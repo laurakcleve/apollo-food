@@ -109,6 +109,7 @@ const DISHES_QUERY = gql`
       name
       ingredientSets {
         id
+        optional
         ingredients {
           id
           item {

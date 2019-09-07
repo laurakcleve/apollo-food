@@ -7,6 +7,7 @@ const FormAdd = ({ DISHES_QUERY }) => {
   const initialIngredientSets = [
     {
       id: Date.now(),
+      optional: false,
       ingredients: [
         {
           id: Date.now(),
@@ -46,6 +47,7 @@ const FormAdd = ({ DISHES_QUERY }) => {
     const newIngredientSets = [...ingredientSets]
     newIngredientSets.push({
       id: Date.now(),
+      optional: false,
       ingredients: [
         {
           id: Date.now(),
@@ -89,6 +91,14 @@ const FormAdd = ({ DISHES_QUERY }) => {
     const newIngredientSets = [...ingredientSets]
     newIngredientSets[ingredientSetIndex].ingredients[ingredientIndex].item.name =
       event.target.value
+    setIngredientSets(newIngredientSets)
+  }
+
+  const handleCheckInput = (ingredientSetIndex) => {
+    const newIngredientSets = [...ingredientSets]
+    newIngredientSets[ingredientSetIndex].optional = !newIngredientSets[
+      ingredientSetIndex
+    ].optional
     setIngredientSets(newIngredientSets)
   }
 
@@ -147,6 +157,17 @@ const FormAdd = ({ DISHES_QUERY }) => {
           <button type="button" onClick={() => addSubstitute(ingredientSetIndex)}>
             Add substitute
           </button>
+
+          <label htmlFor={`optional${ingredientSetIndex}`}>
+            <input
+              type="checkbox"
+              id={`optional${ingredientSetIndex}`}
+              checked={ingredientSet.optional}
+              onChange={() => handleCheckInput(ingredientSetIndex)}
+            />
+            <span>Optional</span>
+          </label>
+
           <button
             type="button"
             onClick={() => removeIngredientSet(ingredientSetIndex)}
