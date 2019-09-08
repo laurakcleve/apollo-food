@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { useQuery, useMutation } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
+import styled from 'styled-components'
 import {
   unixTimeToFormatted,
   formattedTimeToPg,
@@ -46,7 +47,7 @@ const FormEdit = ({
   })
 
   return (
-    <form
+    <Form
       onSubmit={(event) => {
         event.preventDefault()
         updateInventoryItem({
@@ -61,77 +62,81 @@ const FormEdit = ({
         })
       }}
     >
-      <label htmlFor="amount">
-        <span>Amount</span>
-        <input
-          type="text"
-          value={amount}
-          onChange={(event) => setAmount(event.target.value)}
-        />
-      </label>
+      <Row>
+        <label htmlFor="amount">
+          <div className="label">Amount</div>
+          <input
+            type="text"
+            value={amount}
+            onChange={(event) => setAmount(event.target.value)}
+          />
+        </label>
+      </Row>
 
-      <br />
+      <Row>
+        <label htmlFor="addDate">
+          <div className="label">Add date</div>
+          <input
+            type="text"
+            value={addDate}
+            onChange={(event) => setAddDate(event.target.value)}
+          />
+        </label>
+      </Row>
 
-      <label htmlFor="addDate">
-        <span>Add date</span>
-        <input
-          type="text"
-          value={addDate}
-          onChange={(event) => setAddDate(event.target.value)}
-        />
-      </label>
+      <Row>
+        <label htmlFor="daysLeft">
+          <div className="label">Days left</div>
+          <input
+            type="number"
+            value={daysLeft}
+            onChange={(event) => setDaysLeft(event.target.value)}
+          />
+        </label>
+      </Row>
 
-      <br />
+      <Row>
+        <label htmlFor="category">
+          <div className="label">Category</div>
+          <input
+            id="category"
+            type="text"
+            list="categoryList"
+            value={category}
+            onChange={(event) => setCategory(event.target.value)}
+          />
+          {!loading && !error && (
+            <datalist id="categoryList">
+              {data.categories.map((listCategory) => (
+                <option key={listCategory.id}>{listCategory.name}</option>
+              ))}
+            </datalist>
+          )}
+        </label>
+      </Row>
 
-      <label htmlFor="daysLeft">
-        <span>Days left</span>
-        <input
-          type="number"
-          value={daysLeft}
-          onChange={(event) => setDaysLeft(event.target.value)}
-        />
-      </label>
-
-      <br />
-
-      <label htmlFor="category">
-        <span>Category</span>
-        <input
-          type="text"
-          list="categoryList"
-          value={category}
-          onChange={(event) => setCategory(event.target.value)}
-        />
-      </label>
-      {!loading && !error && (
-        <datalist id="categoryList">
-          {data.categories.map((listCategory) => (
-            <option key={listCategory.id}>{listCategory.name}</option>
-          ))}
-        </datalist>
-      )}
-      <br />
-
-      <label htmlFor="location">
-        <div className="label">Location</div>
-        <input
-          id="location"
-          type="text"
-          list="locationList"
-          value={location}
-          onChange={(event) => setLocation(event.target.value)}
-        />
-        {!loadingLocations && !errorLocations && (
-          <datalist id="locationList">
-            {dataLocations.itemLocations.map((itemLocation) => (
-              <option key={itemLocation.id}>{itemLocation.name}</option>
-            ))}
-          </datalist>
-        )}
-      </label>
+      <Row>
+        <label htmlFor="location">
+          <div className="label">Location</div>
+          <input
+            id="location"
+            type="text"
+            list="locationList"
+            value={location}
+            onChange={(event) => setLocation(event.target.value)}
+          />
+          {!loadingLocations && !errorLocations && (
+            <datalist id="locationList">
+              {dataLocations.itemLocations.map((itemLocation) => (
+                <option key={itemLocation.id}>{itemLocation.name}</option>
+              ))}
+            </datalist>
+          )}
+        </label>
+      </Row>
 
       <button type="submit">Save</button>
-    </form>
+    </Form>
   )
 }
 
@@ -183,6 +188,24 @@ const LOCATIONS_QUERY = gql`
       id
       name
     }
+  }
+`
+
+const Form = styled.form`
+  margin-top: 20px;
+
+  label {
+    display: block;
+  }
+`
+
+const Row = styled.div`
+  display: flex;
+  label {
+    display: flex;
+  }
+  .label {
+    width: 110px;
   }
 `
 

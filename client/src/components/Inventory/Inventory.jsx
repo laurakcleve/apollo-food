@@ -188,7 +188,7 @@ const StyledInventory = styled.div`
 `
 
 const InventoryItemList = styled.div`
-  width: 600px;
+  width: 450px;
 
   .column {
     padding: 5px;

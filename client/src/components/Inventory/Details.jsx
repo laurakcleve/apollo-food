@@ -10,51 +10,64 @@ const Details = ({ inventoryItem, INVENTORY_ITEMS_QUERY, setIsSorted }) => {
 
   return (
     <StyledDetails>
-      <p>Added: {moment(Number(inventoryItem.add_date)).format('M/D/YY')}</p>
+      <Row>
+        <Detail>
+          <DetailTitle>Added</DetailTitle>
+          <DetailText>
+            {moment(Number(inventoryItem.add_date)).format('M/D/YY')}
+          </DetailText>
+        </Detail>
 
-      {inventoryItem.item.countsAs.length > 0 && (
-        <>
-          <p>
-            Counts as:{' '}
-            {inventoryItem.item.countsAs.map((genericItem) => (
-              <span key={genericItem.id}>{genericItem.name}</span>
-            ))}
-          </p>
-        </>
-      )}
+        {inventoryItem.item.countsAs.length > 0 && (
+          <Detail>
+            <DetailTitle>Counts as</DetailTitle>
+            <DetailText>
+              {inventoryItem.item.countsAs.map((genericItem) => (
+                <span key={genericItem.id}>{genericItem.name}</span>
+              ))}
+            </DetailText>
+          </Detail>
+        )}
 
-      {inventoryItem.amount && (
-        <>
-          <p>Amount: {inventoryItem.amount}</p>
-        </>
-      )}
+        {inventoryItem.amount && (
+          <Detail>
+            <DetailTitle>Amount</DetailTitle>
+            <DetailText>{inventoryItem.amount}</DetailText>
+          </Detail>
+        )}
 
-      {inventoryItem.item.dishes.length > 0 && (
-        <>
-          <p>
-            Used In:{' '}
-            {inventoryItem.item.dishes.map((dish, index) => (
-              <span key={dish.id}>
-                {dish.name}
-                {index < inventoryItem.item.dishes.length - 1 && ', '}
-              </span>
-            ))}
-          </p>
-        </>
-      )}
+        {inventoryItem.item.dishes.length > 0 && (
+          <Detail>
+            <DetailTitle>Used In</DetailTitle>
+            <DetailText>
+              {inventoryItem.item.dishes.map((dish, index) => (
+                <span key={dish.id}>
+                  {dish.name}
+                  {index < inventoryItem.item.dishes.length - 1 && ', '}
+                </span>
+              ))}
+            </DetailText>
+          </Detail>
+        )}
 
-      {inventoryItem.item.category && (
-        <>
-          <p>Category: {inventoryItem.item.category.name}</p>
-        </>
-      )}
+        {inventoryItem.item.category && (
+          <Detail>
+            <DetailTitle>Category</DetailTitle>
+            <DetailText>{inventoryItem.item.category.name}</DetailText>
+          </Detail>
+        )}
 
-      {inventoryItem.location && <p>Location: {inventoryItem.location.name}</p>}
+        {inventoryItem.location && (
+          <Detail>
+            <DetailTitle>Location</DetailTitle>
+            <DetailText>{inventoryItem.location.name}</DetailText>
+          </Detail>
+        )}
 
-      <button type="button" onClick={() => setIsEditing(true)}>
-        Edit
-      </button>
-
+        <button type="button" onClick={() => setIsEditing(true)}>
+          Edit
+        </button>
+      </Row>
       {isEditing && (
         <FormEdit
           inventoryItem={inventoryItem}
@@ -68,9 +81,21 @@ const Details = ({ inventoryItem, INVENTORY_ITEMS_QUERY, setIsSorted }) => {
 }
 
 const StyledDetails = styled.div`
-  padding: 0 20px;
+  padding: 20px;
   border: 1px solid #ccc;
 `
+
+const Row = styled.div`
+  display: flex;
+`
+
+const Detail = styled.div`
+  width: 100px;
+`
+
+const DetailTitle = styled.div``
+
+const DetailText = styled.div``
 
 Details.propTypes = {
   inventoryItem: PropTypes.shape({
