@@ -29,12 +29,19 @@ const Details = ({ inventoryItem, INVENTORY_ITEMS_QUERY, setIsSorted }) => {
         </>
       )}
 
-      {inventoryItem.item.dishes && (
+      {inventoryItem.item.dishes.length > 0 && (
         <>
           <p>Used In</p>
           {inventoryItem.item.dishes.map((dish) => (
             <p key={dish.id}>{dish.name}</p>
           ))}
+        </>
+      )}
+
+      {inventoryItem.item.category && (
+        <>
+          <p>Category</p>
+          <p>{inventoryItem.item.category.name}</p>
         </>
       )}
 

@@ -52,6 +52,18 @@ class ItemsAPI extends DataSource {
       .then((results) => Promise.resolve(results.rows))
   }
 
+  getItemCategory({ itemID }) {
+    const queryString = `
+      SELECT item_category.*
+      FROM item_category
+      INNER JOIN item ON item.category_id = item_category.id
+      WHERE item.id = $1
+    `
+    return client
+      .query(queryString, [Number(itemID)])
+      .then((results) => Promise.resolve(results.rows[0]))
+  }
+
   addItem({ name }) {
     const queryString = `
       INSERT INTO item(name)

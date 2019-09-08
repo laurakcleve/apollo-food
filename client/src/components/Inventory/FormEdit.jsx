@@ -56,6 +56,8 @@ const FormEdit = ({
         />
       </label>
 
+      <br />
+
       <label htmlFor="addDate">
         <span>Add date</span>
         <input
@@ -65,6 +67,8 @@ const FormEdit = ({
         />
       </label>
 
+      <br />
+
       <label htmlFor="daysLeft">
         <span>Days left</span>
         <input
@@ -73,6 +77,8 @@ const FormEdit = ({
           onChange={(event) => setDaysLeft(event.target.value)}
         />
       </label>
+
+      <br />
 
       <button type="submit">Save</button>
     </form>

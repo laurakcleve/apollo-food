@@ -8,6 +8,7 @@ const typeDefs = gql`
     inventoryItem(id: ID!): InventoryItem
     dishes: [Dish]!
     dish(id: ID!): Dish
+    categories: [Category]!
   }
 
   type Mutation {
@@ -20,6 +21,7 @@ const typeDefs = gql`
       expiration: String
       defaultShelflife: Int
       countsAs: String
+      category: String
     ): InventoryItem!
     updateInventoryItem(
       id: ID!
@@ -41,6 +43,12 @@ const typeDefs = gql`
     countsAs: [Item]
     default_shelflife: Int
     dishes: [Dish]
+    category: Category
+  }
+
+  type Category {
+    id: ID!
+    name: String!
   }
 
   type InventoryItem {

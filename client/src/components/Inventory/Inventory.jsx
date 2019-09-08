@@ -100,7 +100,6 @@ const Inventory = ({ client }) => {
 
   const { loading, error, data } = useQuery(INVENTORY_ITEMS_QUERY, {
     onCompleted: () => {
-      console.log('query completed in Inventory', isSorted)
       if (!isSorted) sort({})
     },
   })
@@ -164,6 +163,10 @@ const INVENTORY_ITEMS_QUERY = gql`
         }
         default_shelflife
         dishes {
+          id
+          name
+        }
+        category {
           id
           name
         }

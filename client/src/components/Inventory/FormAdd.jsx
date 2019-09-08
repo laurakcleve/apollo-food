@@ -6,13 +6,19 @@ import moment from 'moment'
 import styled from 'styled-components'
 
 const FormAdd = ({ setIsSorted, INVENTORY_ITEMS_QUERY, client }) => {
-  const [newItemName, setNewItemName] = useState('')
-  const [newItemAmount, setNewItemAmount] = useState('')
-  const [newItemAddDate, setNewItemAddDate] = useState(moment().format('M/D/YY'))
-  const [newItemShelflife, setNewItemShelflife] = useState('')
-  const [newItemCountsAs, setNewItemCountsAs] = useState('')
+  const [name, setName] = useState('')
+  const [amount, setAmount] = useState('')
+  const [addDate, setAddDate] = useState(moment().format('M/D/YY'))
+  const [shelflife, setShelflife] = useState('')
+  const [countsAs, setCountsAs] = useState('')
+  const [category, setCategory] = useState('')
 
   const { loading, error, data } = useQuery(ITEMS_QUERY)
+  const {
+    loading: loadingCategories,
+    error: errorCategories,
+    data: dataCategories,
+  } = useQuery(CATEGORIES_QUERY)
   const [addInventoryItem] = useMutation(ADD_INVENTORY_ITEM_MUTATION, {
     onCompleted: () => {
       resetInputs()
@@ -34,18 +40,20 @@ const FormAdd = ({ setIsSorted, INVENTORY_ITEMS_QUERY, client }) => {
     nameInput.current.focus()
   }
 
-  const checkShelflife = () => {
-    if (newItemName === '') return
-    // const { items: readQueryItems } = client.readQuery({ query: ITEMS_QUERY })
-    const itemObj = data.items.filter((item) => item.name === newItemName)[0]
+  const checkItemDetails = () => {
+    if (name === '') return
+    const itemObj = data.items.filter((item) => item.name === name)[0]
+    console.log('itemObj', itemObj)
     if (itemObj && itemObj.default_shelflife)
-      setNewItemShelflife(Number(itemObj.default_shelflife))
+      setShelflife(Number(itemObj.default_shelflife))
+    if (itemObj && itemObj.category) setCategory(itemObj.category.name)
   }
 
   const resetInputs = () => {
-    setNewItemName('')
-    setNewItemAmount('')
-    setNewItemShelflife('')
+    setName('')
+    setAmount('')
+    setShelflife('')
+    setCategory('')
     focusNameInput()
   }
 
@@ -53,17 +61,18 @@ const FormAdd = ({ setIsSorted, INVENTORY_ITEMS_QUERY, client }) => {
     <Form
       onSubmit={(event) => {
         event.preventDefault()
-        if (newItemName) {
+        if (name) {
           addInventoryItem({
             variables: {
-              name: newItemName,
-              amount: newItemAmount,
-              addDate: moment(newItemAddDate, 'M/D/YY').format('YYYY-MM-DD'),
-              expiration: moment(newItemAddDate, 'M/D/YY')
-                .add(Number(newItemShelflife), 'days')
+              name,
+              amount,
+              addDate: moment(addDate, 'M/D/YY').format('YYYY-MM-DD'),
+              expiration: moment(addDate, 'M/D/YY')
+                .add(Number(shelflife), 'days')
                 .format('YYYY-MM-DD'),
-              defaultShelflife: newItemShelflife,
-              countsAs: newItemCountsAs,
+              defaultShelflife: shelflife,
+              countsAs,
+              category,
             },
           })
         }
@@ -77,12 +86,12 @@ const FormAdd = ({ setIsSorted, INVENTORY_ITEMS_QUERY, client }) => {
           type="text"
           ref={nameInput}
           list="itemList"
-          value={newItemName}
+          value={name}
           onChange={(event) => {
-            setNewItemShelflife('')
-            setNewItemName(event.target.value)
+            setShelflife('')
+            setName(event.target.value)
           }}
-          onBlur={checkShelflife}
+          onBlur={checkItemDetails}
         />
         {!loading && !error && (
           <datalist id="itemList">
@@ -94,12 +103,31 @@ const FormAdd = ({ setIsSorted, INVENTORY_ITEMS_QUERY, client }) => {
       </Row>
 
       <Row>
+        <div className="label">Category</div>
+        <input
+          type="text"
+          list="categoryList"
+          value={category}
+          onChange={(event) => {
+            setCategory(event.target.value)
+          }}
+        />
+        {!loadingCategories && !errorCategories && (
+          <datalist id="categoryList">
+            {dataCategories.categories.map((listCategory) => (
+              <option key={listCategory.id}>{listCategory.name}</option>
+            ))}
+          </datalist>
+        )}
+      </Row>
+
+      <Row>
         <label htmlFor="itemAmount">
           <div className="label">Amount</div>
           <input
             type="text"
-            value={newItemAmount}
-            onChange={(event) => setNewItemAmount(event.target.value)}
+            value={amount}
+            onChange={(event) => setAmount(event.target.value)}
           />
         </label>
       </Row>
@@ -110,8 +138,8 @@ const FormAdd = ({ setIsSorted, INVENTORY_ITEMS_QUERY, client }) => {
           <input
             id="itemAddDate"
             type="text"
-            value={newItemAddDate}
-            onChange={(event) => setNewItemAddDate(event.target.value)}
+            value={addDate}
+            onChange={(event) => setAddDate(event.target.value)}
           />
         </label>
       </Row>
@@ -122,8 +150,8 @@ const FormAdd = ({ setIsSorted, INVENTORY_ITEMS_QUERY, client }) => {
           <input
             id="itemShelflife"
             type="number"
-            value={newItemShelflife}
-            onChange={(event) => setNewItemShelflife(Number(event.target.value))}
+            value={shelflife}
+            onChange={(event) => setShelflife(Number(event.target.value))}
           />
         </label>
       </Row>
@@ -135,8 +163,8 @@ const FormAdd = ({ setIsSorted, INVENTORY_ITEMS_QUERY, client }) => {
             id="itemCountsAs"
             type="text"
             list="itemCountsAsList"
-            value={newItemCountsAs}
-            onChange={(event) => setNewItemCountsAs(event.target.value)}
+            value={countsAs}
+            onChange={(event) => setCountsAs(event.target.value)}
           />
           {!loading && !error && (
             <datalist id="itemCountsAsList">
@@ -163,6 +191,7 @@ const ADD_INVENTORY_ITEM_MUTATION = gql`
     $expiration: String
     $defaultShelflife: Int
     $countsAs: String
+    $category: String
   ) {
     addInventoryItem(
       name: $name
@@ -171,11 +200,16 @@ const ADD_INVENTORY_ITEM_MUTATION = gql`
       expiration: $expiration
       defaultShelflife: $defaultShelflife
       countsAs: $countsAs
+      category: $category
     ) {
       id
       item {
         id
         name
+        category {
+          id
+          name
+        }
         default_shelflife
         countsAs {
           id
@@ -195,6 +229,19 @@ const ITEMS_QUERY = gql`
       id
       name
       default_shelflife
+      category {
+        id
+        name
+      }
+    }
+  }
+`
+
+const CATEGORIES_QUERY = gql`
+  query categories {
+    categories {
+      id
+      name
     }
   }
 `
