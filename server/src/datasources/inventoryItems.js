@@ -48,15 +48,15 @@ class InventoryItemsAPI extends DataSource {
   }) {
     const queryString = `
       WITH retrieved_item_id AS (
-        SELECT item_id_for_insert('steak') 
+        SELECT item_id_for_insert($1) 
       ), retrieved_counts_as_item_id AS(
-        SELECT item_id_for_insert('')
+        SELECT item_id_for_insert($6)
       ), retrieved_category_id AS (
-        SELECT category_id_for_insert('meat') 
+        SELECT category_id_for_insert($7) 
       ), inventory_insert AS (
         INSERT INTO item_counts_as(specific_item_id, generic_item_id)
         SELECT (SELECT * FROM retrieved_item_id), (SELECT * FROM retrieved_counts_as_item_id)
-        WHERE '' != ''
+        WHERE $6 != ''
           AND ((SELECT generic_item_id 
                 FROM item_counts_as
                 WHERE specific_item_id = (SELECT * FROM retrieved_item_id)) != (SELECT * FROM retrieved_counts_as_item_id)
@@ -64,7 +64,7 @@ class InventoryItemsAPI extends DataSource {
               )
       ), default_shelflife_update AS (
         UPDATE item
-        SET default_shelflife = 4
+        SET default_shelflife = $5 
         WHERE id = (SELECT * FROM retrieved_item_id)
         RETURNING *
       ), category_insert AS (
@@ -74,7 +74,7 @@ class InventoryItemsAPI extends DataSource {
         RETURNING *
       ) 
       INSERT INTO inventory_item(item_id, add_date, expiration, amount)
-      SELECT (SELECT * FROM retrieved_item_id), '2019-09-08' AS add_date, '2019-09-12' AS expiration, '' AS amount
+      SELECT (SELECT * FROM retrieved_item_id), $2 AS add_date, $3 AS expiration, $4 AS amount
       RETURNING *
     `
     return client
