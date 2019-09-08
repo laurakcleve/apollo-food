@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
-import { useMutation } from '@apollo/react-hooks'
+import { useQuery, useMutation } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 import {
   unixTimeToFormatted,
@@ -20,7 +20,11 @@ const FormEdit = ({
     unixTimeToFormatted(inventoryItem.add_date) || ''
   )
   const [daysLeft, setDaysLeft] = useState(getDaysLeft(inventoryItem.expiration))
+  const [category, setCategory] = useState(
+    inventoryItem.item.category ? inventoryItem.item.category.name : ''
+  )
 
+  const { loading, error, data } = useQuery(CATEGORIES_QUERY)
   const [updateInventoryItem] = useMutation(UPDATE_INVENTORY_ITEM_MUTATION, {
     refetchQueries: [
       {
@@ -43,6 +47,7 @@ const FormEdit = ({
             addDate: formattedTimeToPg(addDate),
             amount,
             expiration: getExpiration(daysLeft),
+            category,
           },
         })
       }}
@@ -80,6 +85,24 @@ const FormEdit = ({
 
       <br />
 
+      <label htmlFor="category">
+        <span>Category</span>
+        <input
+          type="text"
+          list="categoryList"
+          value={category}
+          onChange={(event) => setCategory(event.target.value)}
+        />
+      </label>
+      {!loading && !error && (
+        <datalist id="categoryList">
+          {data.categories.map((listCategory) => (
+            <option key={listCategory.id}>{listCategory.name}</option>
+          ))}
+        </datalist>
+      )}
+      <br />
+
       <button type="submit">Save</button>
     </form>
   )
@@ -91,12 +114,14 @@ const UPDATE_INVENTORY_ITEM_MUTATION = gql`
     $addDate: String
     $amount: String
     $expiration: String
+    $category: String
   ) {
     updateInventoryItem(
       id: $id
       addDate: $addDate
       amount: $amount
       expiration: $expiration
+      category: $category
     ) {
       id
       item {
@@ -110,6 +135,15 @@ const UPDATE_INVENTORY_ITEM_MUTATION = gql`
   }
 `
 
+const CATEGORIES_QUERY = gql`
+  query categories {
+    categories {
+      id
+      name
+    }
+  }
+`
+
 FormEdit.propTypes = {
   inventoryItem: PropTypes.shape({
     id: PropTypes.string.isRequired,
@@ -119,6 +153,10 @@ FormEdit.propTypes = {
     item: PropTypes.shape({
       id: PropTypes.string.isRequired,
       name: PropTypes.string.isRequired,
+      category: PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        name: PropTypes.string.isRequired,
+      }),
       countsAs: PropTypes.arrayOf(
         PropTypes.shape({
           id: PropTypes.string.isRequired,

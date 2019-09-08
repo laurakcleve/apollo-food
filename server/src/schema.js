@@ -28,6 +28,7 @@ const typeDefs = gql`
       addDate: String
       amount: String
       expiration: String
+      category: String
     ): InventoryItem!
     deleteInventoryItem(id: ID!): Int
     addDish(name: String!, ingredientSets: [IngredientSetInput]!): Dish!

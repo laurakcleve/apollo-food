@@ -31,12 +31,17 @@ const resolvers = {
         countsAs,
         category,
       }),
-    updateInventoryItem: (_, { id, addDate, amount, expiration }, { dataSources }) =>
+    updateInventoryItem: (
+      _,
+      { id, addDate, amount, expiration, category },
+      { dataSources }
+    ) =>
       dataSources.inventoryItemsAPI.updateInventoryItem({
         id,
         addDate,
         amount,
         expiration,
+        category,
       }),
     deleteInventoryItem: (_, { id }, { dataSources }) =>
       dataSources.inventoryItemsAPI.deleteInventoryItem({ id }),

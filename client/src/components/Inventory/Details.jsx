@@ -81,6 +81,10 @@ Details.propTypes = {
           name: PropTypes.string.isRequired,
         })
       ),
+      category: PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        name: PropTypes.string.isRequired,
+      }),
       dishes: PropTypes.arrayOf(
         PropTypes.shape({
           id: PropTypes.string.isRequired,
