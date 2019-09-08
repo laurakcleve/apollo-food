@@ -5,13 +5,14 @@ import PropTypes from 'prop-types'
 import moment from 'moment'
 import styled from 'styled-components'
 
-const FormAdd = ({ setIsSorted, INVENTORY_ITEMS_QUERY, client }) => {
+const FormAdd = ({ setIsSorted, INVENTORY_ITEMS_QUERY }) => {
   const [name, setName] = useState('')
   const [amount, setAmount] = useState('')
   const [addDate, setAddDate] = useState(moment().format('M/D/YY'))
   const [shelflife, setShelflife] = useState('')
   const [countsAs, setCountsAs] = useState('')
   const [category, setCategory] = useState('')
+  const [location, setLocation] = useState('')
 
   const { loading, error, data } = useQuery(ITEMS_QUERY)
   const {
@@ -19,6 +20,11 @@ const FormAdd = ({ setIsSorted, INVENTORY_ITEMS_QUERY, client }) => {
     error: errorCategories,
     data: dataCategories,
   } = useQuery(CATEGORIES_QUERY)
+  const {
+    loading: loadingLocations,
+    error: errorLocations,
+    data: dataLocations,
+  } = useQuery(LOCATIONS_QUERY)
   const [addInventoryItem] = useMutation(ADD_INVENTORY_ITEM_MUTATION, {
     onCompleted: () => {
       resetInputs()
@@ -54,6 +60,7 @@ const FormAdd = ({ setIsSorted, INVENTORY_ITEMS_QUERY, client }) => {
     setAmount('')
     setShelflife('')
     setCategory('')
+    setLocation('')
     focusNameInput()
   }
 
@@ -73,6 +80,7 @@ const FormAdd = ({ setIsSorted, INVENTORY_ITEMS_QUERY, client }) => {
               defaultShelflife: shelflife,
               countsAs,
               category,
+              location,
             },
           })
         }
@@ -176,6 +184,26 @@ const FormAdd = ({ setIsSorted, INVENTORY_ITEMS_QUERY, client }) => {
         </label>
       </Row>
 
+      <Row>
+        <label htmlFor="location">
+          <div className="label">Location</div>
+          <input
+            id="location"
+            type="text"
+            list="locationList"
+            value={location}
+            onChange={(event) => setLocation(event.target.value)}
+          />
+          {!loadingLocations && !errorLocations && (
+            <datalist id="locationList">
+              {dataLocations.itemLocations.map((itemLocation) => (
+                <option key={itemLocation.id}>{itemLocation.name}</option>
+              ))}
+            </datalist>
+          )}
+        </label>
+      </Row>
+
       <div>
         <button type="submit">Save</button>
       </div>
@@ -192,6 +220,7 @@ const ADD_INVENTORY_ITEM_MUTATION = gql`
     $defaultShelflife: Int
     $countsAs: String
     $category: String
+    $location: String
   ) {
     addInventoryItem(
       name: $name
@@ -201,6 +230,7 @@ const ADD_INVENTORY_ITEM_MUTATION = gql`
       defaultShelflife: $defaultShelflife
       countsAs: $countsAs
       category: $category
+      location: $location
     ) {
       id
       item {
@@ -240,6 +270,15 @@ const ITEMS_QUERY = gql`
 const CATEGORIES_QUERY = gql`
   query categories {
     categories {
+      id
+      name
+    }
+  }
+`
+
+const LOCATIONS_QUERY = gql`
+  query itemLocations {
+    itemLocations {
       id
       name
     }

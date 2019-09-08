@@ -37,6 +37,19 @@ class InventoryItemsAPI extends DataSource {
       .then((results) => Promise.resolve(results.rows[0]))
   }
 
+  getLocation({ inventoryItemID }) {
+    const queryString = `
+      SELECT inventory_item_location.*
+      FROM inventory_item_location
+      INNER JOIN inventory_item 
+        ON inventory_item.location_id = inventory_item_location.id
+      WHERE inventory_item.id = $1 
+    `
+    return client
+      .query(queryString, [Number(inventoryItemID)])
+      .then((results) => Promise.resolve(results.rows[0]))
+  }
+
   addInventoryItem({
     name,
     addDate,
@@ -45,28 +58,39 @@ class InventoryItemsAPI extends DataSource {
     defaultShelflife,
     countsAs,
     category,
+    location,
   }) {
     const queryString = `
       WITH retrieved_item_id AS (
         SELECT item_id_for_insert($1) 
       ), retrieved_counts_as_item_id AS (
         SELECT item_id_for_insert($5)
-      ), inventory_insert AS (
+      ), retrieved_location_id AS (
+        SELECT location_id_for_insert($6)
+      ),
+      counts_as_insert AS (
         INSERT INTO item_counts_as(specific_item_id, generic_item_id)
         SELECT (SELECT * FROM retrieved_item_id), (SELECT * FROM retrieved_counts_as_item_id)
         WHERE $5 != ''
           AND ((SELECT generic_item_id 
                 FROM item_counts_as
-                WHERE specific_item_id = (SELECT * FROM retrieved_item_id)) != (SELECT * FROM retrieved_counts_as_item_id)
-              OR (SELECT * FROM retrieved_item_id) NOT IN (SELECT specific_item_id FROM item_counts_as)
+                WHERE specific_item_id = (SELECT * FROM retrieved_item_id)) 
+                  != (SELECT * FROM retrieved_counts_as_item_id)
+              OR (SELECT * FROM retrieved_item_id) 
+                NOT IN (SELECT specific_item_id FROM item_counts_as)
               )
       )
-      INSERT INTO inventory_item(item_id, add_date, expiration, amount)
-      SELECT (SELECT * FROM retrieved_item_id), $2 AS add_date, $3 AS expiration, $4 AS amount
+      INSERT INTO inventory_item(item_id, add_date, expiration, amount, location_id)
+      SELECT 
+        (SELECT * FROM retrieved_item_id), 
+        $2 AS add_date, 
+        $3 AS expiration, 
+        $4 AS amount, 
+        (SELECT * FROM retrieved_location_id) as location_id
       RETURNING *
     `
     return client
-      .query(queryString, [name, addDate, expiration, amount, countsAs])
+      .query(queryString, [name, addDate, expiration, amount, countsAs, location])
       .then((results) => {
         const updateShelflifeQueryString = `
           UPDATE item

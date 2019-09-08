@@ -10,6 +10,8 @@ const resolvers = {
     dish: (_, { id }, { dataSources }) => dataSources.dishesAPI.getDish({ id }),
     categories: (_, __, { dataSources }) =>
       dataSources.categoriesAPI.getCategories(),
+    itemLocations: (_, __, { dataSources }) =>
+      dataSources.itemLocationsAPI.getLocations(),
   },
 
   Mutation: {
@@ -19,7 +21,16 @@ const resolvers = {
       dataSources.itemsAPI.deleteItem({ id }),
     addInventoryItem: (
       _,
-      { name, addDate, amount, expiration, defaultShelflife, countsAs, category },
+      {
+        name,
+        addDate,
+        amount,
+        expiration,
+        defaultShelflife,
+        countsAs,
+        category,
+        location,
+      },
       { dataSources }
     ) =>
       dataSources.inventoryItemsAPI.addInventoryItem({
@@ -30,6 +41,7 @@ const resolvers = {
         defaultShelflife,
         countsAs,
         category,
+        location,
       }),
     updateInventoryItem: (
       _,
@@ -69,6 +81,10 @@ const resolvers = {
   InventoryItem: {
     item: (InventoryItem, __, { dataSources }) =>
       dataSources.inventoryItemsAPI.getInventoryItemItem({
+        inventoryItemID: InventoryItem.id,
+      }),
+    location: (InventoryItem, __, { dataSources }) =>
+      dataSources.inventoryItemsAPI.getLocation({
         inventoryItemID: InventoryItem.id,
       }),
   },

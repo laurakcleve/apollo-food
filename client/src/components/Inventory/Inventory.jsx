@@ -174,6 +174,10 @@ const INVENTORY_ITEMS_QUERY = gql`
       add_date
       expiration
       amount
+      location {
+        id
+        name
+      }
     }
   }
 `
