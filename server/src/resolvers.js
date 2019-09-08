@@ -95,6 +95,8 @@ const resolvers = {
       dataSources.dishesAPI.getDishIngredientSets({ dishID: Dish.id }),
     dates: (Dish, __, { dataSources }) =>
       dataSources.dishesAPI.getDishDates({ dishID: Dish.id }),
+    tags: (Dish, __, { dataSources }) =>
+      dataSources.dishesAPI.getTags({ dishID: Dish.id }),
   },
 
   IngredientSet: {

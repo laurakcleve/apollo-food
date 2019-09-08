@@ -75,6 +75,18 @@ class DishesAPI extends DataSource {
       .then((results) => Promise.resolve(results.rows))
   }
 
+  getTags({ dishID }) {
+    const queryString = `
+      SELECT dish_tag.*
+      FROM dish_tag
+      INNER JOIN item_has_dish_tag on item_has_dish_tag.dish_tag_id = dish_tag.id
+      WHERE item_has_dish_tag.item_id = $1 
+    `
+    return client
+      .query(queryString, [Number(dishID)])
+      .then((results) => Promise.resolve(results.rows))
+  }
+
   addDish({ name, ingredientSets }) {
     // Building the return object
     const newDish = {}

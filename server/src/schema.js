@@ -74,6 +74,7 @@ const typeDefs = gql`
     name: String!
     ingredientSets: [IngredientSet]
     dates: [DishDate]
+    tags: [DishTag]
   }
 
   type IngredientSet {
@@ -90,6 +91,11 @@ const typeDefs = gql`
   type DishDate {
     id: ID!
     date: String!
+  }
+
+  type DishTag {
+    id: ID!
+    name: String!
   }
 
   input IngredientSetInput {

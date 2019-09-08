@@ -122,6 +122,10 @@ const DISHES_QUERY = gql`
         id
         date
       }
+      tags {
+        id
+        name
+      }
     }
   }
 `

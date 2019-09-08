@@ -20,6 +20,9 @@ const Details = ({ dish, DISHES_QUERY }) => {
   return (
     <StyledDetails>
       <div className="row">
+        <Tags>
+          {dish.tags && dish.tags.map((tag) => <p key={tag.id}>{tag.name}</p>)}
+        </Tags>
         <Ingredients>
           {dish.ingredientSets.map((ingredientSet) => (
             <p key={ingredientSet.id}>
@@ -89,6 +92,10 @@ const StyledDetails = styled.div`
   }
 `
 
+const Tags = styled.div`
+  flex-grow: 1;
+`
+
 const Ingredients = styled.div`
   flex-grow: 1;
 `
@@ -125,6 +132,12 @@ Details.propTypes = {
         ).isRequired,
       })
     ).isRequired,
+    tags: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        name: PropTypes.string.isRequired,
+      })
+    ),
   }).isRequired,
   DISHES_QUERY: PropTypes.shape({}).isRequired,
 }
