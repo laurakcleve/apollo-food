@@ -23,8 +23,16 @@ const FormEdit = ({
   const [category, setCategory] = useState(
     inventoryItem.item.category ? inventoryItem.item.category.name : ''
   )
+  const [location, setLocation] = useState(
+    inventoryItem.location ? inventoryItem.location.name : ''
+  )
 
   const { loading, error, data } = useQuery(CATEGORIES_QUERY)
+  const {
+    loading: loadingLocations,
+    error: errorLocations,
+    data: dataLocations,
+  } = useQuery(LOCATIONS_QUERY)
   const [updateInventoryItem] = useMutation(UPDATE_INVENTORY_ITEM_MUTATION, {
     refetchQueries: [
       {
@@ -48,6 +56,7 @@ const FormEdit = ({
             amount,
             expiration: getExpiration(daysLeft),
             category,
+            location,
           },
         })
       }}
@@ -103,6 +112,24 @@ const FormEdit = ({
       )}
       <br />
 
+      <label htmlFor="location">
+        <div className="label">Location</div>
+        <input
+          id="location"
+          type="text"
+          list="locationList"
+          value={location}
+          onChange={(event) => setLocation(event.target.value)}
+        />
+        {!loadingLocations && !errorLocations && (
+          <datalist id="locationList">
+            {dataLocations.itemLocations.map((itemLocation) => (
+              <option key={itemLocation.id}>{itemLocation.name}</option>
+            ))}
+          </datalist>
+        )}
+      </label>
+
       <button type="submit">Save</button>
     </form>
   )
@@ -115,6 +142,7 @@ const UPDATE_INVENTORY_ITEM_MUTATION = gql`
     $amount: String
     $expiration: String
     $category: String
+    $location: String
   ) {
     updateInventoryItem(
       id: $id
@@ -122,6 +150,7 @@ const UPDATE_INVENTORY_ITEM_MUTATION = gql`
       amount: $amount
       expiration: $expiration
       category: $category
+      location: $location
     ) {
       id
       item {
@@ -131,6 +160,10 @@ const UPDATE_INVENTORY_ITEM_MUTATION = gql`
       add_date
       amount
       expiration
+      location {
+        id
+        name
+      }
     }
   }
 `
@@ -138,6 +171,15 @@ const UPDATE_INVENTORY_ITEM_MUTATION = gql`
 const CATEGORIES_QUERY = gql`
   query categories {
     categories {
+      id
+      name
+    }
+  }
+`
+
+const LOCATIONS_QUERY = gql`
+  query itemLocations {
+    itemLocations {
       id
       name
     }
@@ -163,6 +205,10 @@ FormEdit.propTypes = {
           name: PropTypes.string.isRequired,
         })
       ),
+    }),
+    location: PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
     }),
   }).isRequired,
   setIsEditing: PropTypes.func.isRequired,

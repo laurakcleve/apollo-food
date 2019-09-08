@@ -119,7 +119,7 @@ class InventoryItemsAPI extends DataSource {
       })
   }
 
-  updateInventoryItem({ id, addDate, amount, expiration, category }) {
+  updateInventoryItem({ id, addDate, amount, expiration, category, location }) {
     const queryString = `
       UPDATE inventory_item
       SET add_date = $2,
@@ -139,7 +139,17 @@ class InventoryItemsAPI extends DataSource {
         `
         return client
           .query(categoryQueryString, [category, results.rows[0].item_id])
-          .then(() => Promise.resolve(results.rows[0]))
+          .then(() => {
+            const locationQueryString = `
+              UPDATE inventory_item
+              SET location_id = (SELECT location_id_for_insert($1))
+              WHERE id = $2
+              RETURNING *
+            `
+            return client
+              .query(locationQueryString, [location, results.rows[0].id])
+              .then(() => Promise.resolve(results.rows[0]))
+          })
       })
   }
 
