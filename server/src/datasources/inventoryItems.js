@@ -49,45 +49,50 @@ class InventoryItemsAPI extends DataSource {
     const queryString = `
       WITH retrieved_item_id AS (
         SELECT item_id_for_insert($1) 
-      ), retrieved_counts_as_item_id AS(
-        SELECT item_id_for_insert($6)
-      ), retrieved_category_id AS (
-        SELECT category_id_for_insert($7) 
+      ), retrieved_counts_as_item_id AS (
+        SELECT item_id_for_insert($5)
       ), inventory_insert AS (
         INSERT INTO item_counts_as(specific_item_id, generic_item_id)
         SELECT (SELECT * FROM retrieved_item_id), (SELECT * FROM retrieved_counts_as_item_id)
-        WHERE $6 != ''
+        WHERE $5 != ''
           AND ((SELECT generic_item_id 
                 FROM item_counts_as
                 WHERE specific_item_id = (SELECT * FROM retrieved_item_id)) != (SELECT * FROM retrieved_counts_as_item_id)
               OR (SELECT * FROM retrieved_item_id) NOT IN (SELECT specific_item_id FROM item_counts_as)
               )
-      ), default_shelflife_update AS (
-        UPDATE item
-        SET default_shelflife = $5 
-        WHERE id = (SELECT * FROM retrieved_item_id)
-        RETURNING *
-      ), category_insert AS (
-        UPDATE item
-        SET category_id = (SELECT * FROM retrieved_category_id)
-        WHERE id = (SELECT * FROM retrieved_item_id)
-        RETURNING *
-      ) 
+      )
       INSERT INTO inventory_item(item_id, add_date, expiration, amount)
       SELECT (SELECT * FROM retrieved_item_id), $2 AS add_date, $3 AS expiration, $4 AS amount
       RETURNING *
     `
     return client
-      .query(queryString, [
-        name,
-        addDate,
-        expiration,
-        amount,
-        defaultShelflife,
-        countsAs,
-        category,
-      ])
-      .then((results) => Promise.resolve(results.rows[0]))
+      .query(queryString, [name, addDate, expiration, amount, countsAs])
+      .then((results) => {
+        const updateShelflifeQueryString = `
+          UPDATE item
+          SET default_shelflife = $1
+          WHERE id = $2
+          RETURNING *
+        `
+        return client
+          .query(updateShelflifeQueryString, [
+            defaultShelflife,
+            results.rows[0].item_id,
+          ])
+          .then(() => {
+            const categoryQueryString = `
+            UPDATE item
+            SET category_id = (SELECT category_id_for_insert($1))
+            WHERE id = $2
+            RETURNING *
+          `
+            return client
+              .query(categoryQueryString, [category, results.rows[0].item_id])
+              .then(() => {
+                return Promise.resolve(results.rows[0])
+              })
+          })
+      })
   }
 
   updateInventoryItem({ id, addDate, amount, expiration }) {
