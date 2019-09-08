@@ -10,38 +10,42 @@ const Details = ({ inventoryItem, INVENTORY_ITEMS_QUERY, setIsSorted }) => {
 
   return (
     <StyledDetails>
-      <p>Added</p>
-      <p>{moment(Number(inventoryItem.add_date)).format('M/D/YY')}</p>
+      <p>Added: {moment(Number(inventoryItem.add_date)).format('M/D/YY')}</p>
 
       {inventoryItem.item.countsAs.length > 0 && (
         <>
-          <p>Counts as</p>
-          {inventoryItem.item.countsAs.map((genericItem) => (
-            <p key={genericItem.id}>{genericItem.name}</p>
-          ))}
+          <p>
+            Counts as:{' '}
+            {inventoryItem.item.countsAs.map((genericItem) => (
+              <span key={genericItem.id}>{genericItem.name}</span>
+            ))}
+          </p>
         </>
       )}
 
       {inventoryItem.amount && (
         <>
-          <p>Amount</p>
-          <p>{inventoryItem.amount}</p>
+          <p>Amount: {inventoryItem.amount}</p>
         </>
       )}
 
       {inventoryItem.item.dishes.length > 0 && (
         <>
-          <p>Used In</p>
-          {inventoryItem.item.dishes.map((dish) => (
-            <p key={dish.id}>{dish.name}</p>
-          ))}
+          <p>
+            Used In:{' '}
+            {inventoryItem.item.dishes.map((dish, index) => (
+              <span key={dish.id}>
+                {dish.name}
+                {index < inventoryItem.item.dishes.length - 1 && ', '}
+              </span>
+            ))}
+          </p>
         </>
       )}
 
       {inventoryItem.item.category && (
         <>
-          <p>Category</p>
-          <p>{inventoryItem.item.category.name}</p>
+          <p>Category: {inventoryItem.item.category.name}</p>
         </>
       )}
 
