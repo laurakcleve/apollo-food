@@ -7,12 +7,14 @@ import styled from 'styled-components'
 
 import InventoryListItem from './InventoryListItem'
 import FormAdd from './FormAdd'
+import Sidebar from './Sidebar'
 
 const Inventory = ({ client }) => {
   const [isSorted, setIsSorted] = useState(false)
   const [currentSortBy, setCurrentSortBy] = useState('expiration')
   const [currentSortOrder, setCurrentSortOrder] = useState('asc')
   const [selectedItemID, setSelectedItemID] = useState(null)
+  const [filteredItems, setFilteredItems] = useState(null)
 
   const innerSort = ({ items, sortBy, order }) => {
     const sortedItems = [].concat(items)
@@ -101,8 +103,22 @@ const Inventory = ({ client }) => {
   const { loading, error, data } = useQuery(INVENTORY_ITEMS_QUERY, {
     onCompleted: () => {
       if (!isSorted) sort({})
+      if (!filteredItems) setFilteredItems(data.inventoryItems)
     },
   })
+
+  const filter = (filterBy) => {
+    if (data.inventoryItems) {
+      let newFilteredItems
+      if (filterBy === 'all') newFilteredItems = data.inventoryItems
+      else {
+        newFilteredItems = data.inventoryItems.filter(
+          (item) => item.location && item.location.name === filterBy
+        )
+      }
+      setFilteredItems(newFilteredItems)
+    }
+  }
 
   if (loading) return <p>Loading...</p>
   if (error) return <p>Error</p>
@@ -110,42 +126,48 @@ const Inventory = ({ client }) => {
   return (
     <StyledInventory>
       <h1>Inventory</h1>
-      <InventoryItemList>
-        <div style={{ display: 'flex' }}>
-          <div
-            role="button"
-            tabIndex="-1"
-            className="column column--name"
-            onClick={() => sort({ newSortBy: 'name', changeSort: true })}
-          >
-            Name
-          </div>
-          <div
-            role="button"
-            tabIndex="-1"
-            className="column column--expiration"
-            onClick={() => sort({ newSortBy: 'expiration', changeSort: true })}
-          >
-            Expiration
-          </div>
-          <div className="column column--delete" />
-        </div>
-        {data.inventoryItems.map((inventoryItem) => (
-          <InventoryListItem
-            key={inventoryItem.id}
-            inventoryItem={inventoryItem}
-            INVENTORY_ITEMS_QUERY={INVENTORY_ITEMS_QUERY}
+      <div className="container">
+        <Sidebar filter={filter} />
+        <div className="content">
+          <InventoryItemList>
+            <div style={{ display: 'flex' }}>
+              <div
+                role="button"
+                tabIndex="-1"
+                className="column column--name"
+                onClick={() => sort({ newSortBy: 'name', changeSort: true })}
+              >
+                Name
+              </div>
+              <div
+                role="button"
+                tabIndex="-1"
+                className="column column--expiration"
+                onClick={() => sort({ newSortBy: 'expiration', changeSort: true })}
+              >
+                Expiration
+              </div>
+              <div className="column column--delete" />
+            </div>
+            {filteredItems &&
+              filteredItems.map((inventoryItem) => (
+                <InventoryListItem
+                  key={inventoryItem.id}
+                  inventoryItem={inventoryItem}
+                  INVENTORY_ITEMS_QUERY={INVENTORY_ITEMS_QUERY}
+                  setIsSorted={setIsSorted}
+                  selectedItemID={selectedItemID}
+                  setSelectedItemID={setSelectedItemID}
+                />
+              ))}
+          </InventoryItemList>
+          <FormAdd
+            client={client}
             setIsSorted={setIsSorted}
-            selectedItemID={selectedItemID}
-            setSelectedItemID={setSelectedItemID}
+            INVENTORY_ITEMS_QUERY={INVENTORY_ITEMS_QUERY}
           />
-        ))}
-      </InventoryItemList>
-      <FormAdd
-        client={client}
-        setIsSorted={setIsSorted}
-        INVENTORY_ITEMS_QUERY={INVENTORY_ITEMS_QUERY}
-      />
+        </div>
+      </div>
     </StyledInventory>
   )
 }
@@ -185,6 +207,9 @@ const INVENTORY_ITEMS_QUERY = gql`
 const StyledInventory = styled.div`
   max-width: ${({ theme }) => theme.containerWidth};
   margin: 0 auto;
+  .container {
+    display: flex;
+  }
 `
 
 const InventoryItemList = styled.div`
