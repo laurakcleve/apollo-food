@@ -49,6 +49,8 @@ const Details = ({ inventoryItem, INVENTORY_ITEMS_QUERY, setIsSorted }) => {
         </>
       )}
 
+      {inventoryItem.location && <p>Location: {inventoryItem.location.name}</p>}
+
       <button type="button" onClick={() => setIsEditing(true)}>
         Edit
       </button>
@@ -95,6 +97,10 @@ Details.propTypes = {
           name: PropTypes.string.isRequired,
         })
       ),
+    }),
+    location: PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
     }),
   }).isRequired,
   INVENTORY_ITEMS_QUERY: PropTypes.shape({}).isRequired,
