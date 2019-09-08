@@ -10,8 +10,17 @@ const Header = ({ location }) => {
         <StyledLink to="/" pathname={location.pathname}>
           Home
         </StyledLink>
+
         <StyledLink to="/inventory" pathname={location.pathname}>
           Inventory
+        </StyledLink>
+
+        <StyledLink to="/dishes" pathname={location.pathname}>
+          Dishes
+        </StyledLink>
+
+        <StyledLink to="/items" pathname={location.pathname}>
+          Items
         </StyledLink>
       </div>
     </StyledHeader>
@@ -27,7 +36,9 @@ const StyledHeader = styled.header`
   }
 `
 
-const StyledLink = styled(Link)``
+const StyledLink = styled(Link)`
+  margin-right: 10px;
+`
 
 Header.propTypes = {
   location: PropTypes.shape({

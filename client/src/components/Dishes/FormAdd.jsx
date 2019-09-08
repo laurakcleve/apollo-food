@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useQuery, useMutation } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 import PropTypes from 'prop-types'
+import styled from 'styled-components'
 
 const FormAdd = ({ DISHES_QUERY }) => {
   const initialIngredientSets = [
@@ -103,7 +104,7 @@ const FormAdd = ({ DISHES_QUERY }) => {
   }
 
   return (
-    <form
+    <Form
       onSubmit={(event) => {
         event.preventDefault()
         if (name)
@@ -116,71 +117,79 @@ const FormAdd = ({ DISHES_QUERY }) => {
       }}
     >
       <h3>Add new dish</h3>
-      <label htmlFor="name">
-        <span>Name</span>
-        <input
-          type="text"
-          id="name"
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-        />
-      </label>
+
+      <Row>
+        <label htmlFor="name">
+          <div className="label">Name</div>
+          <input
+            type="text"
+            id="name"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+          />
+        </label>
+      </Row>
+
       {ingredientSets.map((ingredientSet, ingredientSetIndex) => (
-        <div key={ingredientSet.id}>
-          <span>Ingredient</span>
-          {ingredientSet.ingredients.map((ingredient, ingredientIndex) => (
-            <React.Fragment key={ingredient.id}>
+        <Row key={ingredientSet.id}>
+          <div>
+            <div className="label">Ingredient</div>
+            {ingredientSet.ingredients.map((ingredient, ingredientIndex) => (
+              <React.Fragment key={ingredient.id}>
+                <input
+                  type="text"
+                  list="itemList"
+                  value={
+                    ingredientSets[ingredientSetIndex].ingredients[ingredientIndex]
+                      .item.name
+                  }
+                  onChange={(event) =>
+                    setIngredient(event, ingredientSetIndex, ingredientIndex)
+                  }
+                />
+                <datalist id="itemList">
+                  {data.items.map((item) => (
+                    <option key={item.id}>{item.name}</option>
+                  ))}
+                </datalist>
+                <button
+                  type="button"
+                  onClick={() =>
+                    removeSubstitute(ingredientSetIndex, ingredientIndex)
+                  }
+                >
+                  X
+                </button>
+              </React.Fragment>
+            ))}
+            <button type="button" onClick={() => addSubstitute(ingredientSetIndex)}>
+              Add substitute
+            </button>
+
+            <label htmlFor={`optional${ingredientSetIndex}`}>
               <input
-                type="text"
-                list="itemList"
-                value={
-                  ingredientSets[ingredientSetIndex].ingredients[ingredientIndex]
-                    .item.name
-                }
-                onChange={(event) =>
-                  setIngredient(event, ingredientSetIndex, ingredientIndex)
-                }
+                type="checkbox"
+                id={`optional${ingredientSetIndex}`}
+                checked={ingredientSet.optional}
+                onChange={() => handleCheckInput(ingredientSetIndex)}
               />
-              <datalist id="itemList">
-                {data.items.map((item) => (
-                  <option key={item.id}>{item.name}</option>
-                ))}
-              </datalist>
-              <button
-                type="button"
-                onClick={() => removeSubstitute(ingredientSetIndex, ingredientIndex)}
-              >
-                X
-              </button>
-            </React.Fragment>
-          ))}
-          <button type="button" onClick={() => addSubstitute(ingredientSetIndex)}>
-            Add substitute
-          </button>
+              <span>Optional</span>
+            </label>
 
-          <label htmlFor={`optional${ingredientSetIndex}`}>
-            <input
-              type="checkbox"
-              id={`optional${ingredientSetIndex}`}
-              checked={ingredientSet.optional}
-              onChange={() => handleCheckInput(ingredientSetIndex)}
-            />
-            <span>Optional</span>
-          </label>
-
-          <button
-            type="button"
-            onClick={() => removeIngredientSet(ingredientSetIndex)}
-          >
-            Remove
-          </button>
-        </div>
+            <button
+              type="button"
+              onClick={() => removeIngredientSet(ingredientSetIndex)}
+            >
+              Remove
+            </button>
+          </div>
+        </Row>
       ))}
       <button type="button" onClick={addIngredientSet}>
         Add Ingredient Set
       </button>
       <button type="submit">Save</button>
-    </form>
+    </Form>
   )
 }
 
@@ -209,6 +218,24 @@ const ADD_DISH_MUTATION = gql`
         }
       }
     }
+  }
+`
+
+const Form = styled.form`
+  label {
+    display: block;
+  }
+`
+
+const Row = styled.div`
+  display: flex;
+  margin: 10px;
+
+  label {
+    display: flex;
+  }
+  .label {
+    width: 110px;
   }
 `
 

@@ -7,6 +7,7 @@ import { ThemeProvider } from 'styled-components'
 
 import theme from './theme/theme'
 import GlobalStyles from './theme/GlobalStyles'
+import Layout from './components/Layout'
 import Header from './components/Header'
 import Home from './components/Home'
 import Items from './components/Items'
@@ -21,7 +22,7 @@ render(
   <ApolloProvider client={client}>
     <BrowserRouter>
       <ThemeProvider theme={theme}>
-        <>
+        <Layout>
           <GlobalStyles />
           <Header />
           <Route exact path="/" component={Home} />
@@ -30,7 +31,7 @@ render(
           <Route exact path="/inventory" component={Inventory} />
           <Route exact path="/dishes" component={Dishes} />
           <Route exact path="/Purchases" component={Purchases} />
-        </>
+        </Layout>
       </ThemeProvider>
     </BrowserRouter>
   </ApolloProvider>,

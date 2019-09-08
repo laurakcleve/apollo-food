@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useQuery, useMutation } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 import PropTypes from 'prop-types'
+import styled from 'styled-components'
 
 const FormEdit = ({ setIsEditing, dish }) => {
   const [name, setName] = useState(dish.name)
@@ -91,52 +92,62 @@ const FormEdit = ({ setIsEditing, dish }) => {
   }
 
   return (
-    <form
+    <Form
       onSubmit={(event) => {
         event.preventDefault()
         updateDish({ variables: { id: dish.id, name, ingredientSets } })
       }}
     >
-      <label htmlFor="name">
-        <span>Name</span>
-        <input
-          type="text"
-          id="name"
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-        />
-      </label>
+      <Row>
+        <label htmlFor="name">
+          <div className="label">Name</div>
+          <input
+            type="text"
+            id="name"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+          />
+        </label>
+      </Row>
 
       {ingredientSets.map((ingredientSet, ingredientSetIndex) => (
-        <div key={ingredientSet.id}>
-          <span>Ingredient</span>
-          {ingredientSet.ingredients.map((ingredient, ingredientIndex) => (
-            <React.Fragment key={ingredient.id}>
-              <input
-                type="text"
-                list="itemList"
-                value={
-                  ingredientSets[ingredientSetIndex].ingredients[ingredientIndex]
-                    .item.name
-                }
-                onChange={(event) =>
-                  setIngredient(event, ingredientSetIndex, ingredientIndex)
-                }
-              />
-              <datalist id="itemList">
-                {data.items.map((item) => (
-                  <option key={item.id}>{item.name}</option>
-                ))}
-              </datalist>
-              <button
-                type="button"
-                onClick={() => removeSubstitute(ingredientSetIndex, ingredientIndex)}
-              >
-                X
-              </button>
-            </React.Fragment>
-          ))}
-          <button type="button" onClick={() => addSubstitute(ingredientSetIndex)}>
+        <Row className="ingredient-set" key={ingredientSet.id}>
+          <div className="label">Ingredient</div>
+          <div>
+            {ingredientSet.ingredients.map((ingredient, ingredientIndex) => (
+              <div key={ingredient.id} className="ingredient">
+                <input
+                  type="text"
+                  list="itemList"
+                  value={
+                    ingredientSets[ingredientSetIndex].ingredients[ingredientIndex]
+                      .item.name
+                  }
+                  onChange={(event) =>
+                    setIngredient(event, ingredientSetIndex, ingredientIndex)
+                  }
+                />
+                <datalist id="itemList">
+                  {data.items.map((item) => (
+                    <option key={item.id}>{item.name}</option>
+                  ))}
+                </datalist>
+                <button
+                  type="button"
+                  onClick={() =>
+                    removeSubstitute(ingredientSetIndex, ingredientIndex)
+                  }
+                >
+                  X
+                </button>
+              </div>
+            ))}
+          </div>
+          <button
+            className="add-substitute"
+            type="button"
+            onClick={() => addSubstitute(ingredientSetIndex)}
+          >
             Add substitute
           </button>
 
@@ -152,17 +163,18 @@ const FormEdit = ({ setIsEditing, dish }) => {
 
           <button
             type="button"
+            className="remove"
             onClick={() => removeIngredientSet(ingredientSetIndex)}
           >
             Remove
           </button>
-        </div>
+        </Row>
       ))}
       <button type="button" onClick={addIngredientSet}>
         Add Ingredient Set
       </button>
       <button type="submit">Save</button>
-    </form>
+    </Form>
   )
 }
 
@@ -196,6 +208,35 @@ const UPDATE_DISH_MUTATION = gql`
         }
       }
     }
+  }
+`
+
+const Form = styled.form`
+  label {
+    display: block;
+  }
+`
+
+const Row = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin: 10px;
+
+  label {
+    display: flex;
+  }
+  .label {
+    width: 110px;
+  }
+  .ingredient-set {
+    display: flex;
+    .ingredient {
+    }
+  }
+  button.add-substitute,
+  button.remove {
+    height: 21px;
   }
 `
 

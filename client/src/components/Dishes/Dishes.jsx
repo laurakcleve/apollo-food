@@ -132,7 +132,7 @@ const StyledDishes = styled.div`
 `
 
 const DishList = styled.div`
-  width: 600px;
+  width: 700px;
 
   .column {
     &--name {
