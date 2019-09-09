@@ -178,7 +178,9 @@ const FormAdd = ({ DISHES_QUERY }) => {
               </React.Fragment>
             ))}
         </div>
-        <button onClick={addTag}>Add tag</button>
+        <button type="button" onClick={addTag}>
+          Add tag
+        </button>
       </Row>
 
       {ingredientSets.map((ingredientSet, ingredientSetIndex) => (
