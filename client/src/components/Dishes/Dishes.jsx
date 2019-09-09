@@ -3,13 +3,12 @@ import { useQuery } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 import { withApollo } from 'react-apollo'
 import styled from 'styled-components'
-import PropTypes from 'prop-types'
 
 import Sidebar from './Sidebar'
 import FormAdd from './FormAdd'
 import DishListItem from './DishListItem'
 
-const Dishes = ({ client }) => {
+const Dishes = () => {
   const [selectedDishID, setSelectedDishID] = useState(null)
   const [currentSortBy, setCurrentSortBy] = useState('last date')
   const [currentSortOrder, setCurrentSortOrder] = useState('desc')
@@ -33,6 +32,8 @@ const Dishes = ({ client }) => {
       })
     } else if (sortBy === 'last date') {
       sortedItems.sort((a, b) => {
+        if (a.dates.length <= 0) return -1
+        if (b.dates.length <= 0) return 1
         if (Number(a.dates[0].date) < Number(b.dates[0].date)) return -1
         if (Number(a.dates[0].date) > Number(b.dates[0].date)) return 1
         return 0
@@ -45,24 +46,20 @@ const Dishes = ({ client }) => {
   }
 
   const sort = (sortBy) => {
-    let newSortOrder
-    if (currentSortBy === sortBy) {
-      newSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc'
-    } else {
-      newSortOrder = 'asc'
+    if (filteredDishes) {
+      let newSortOrder
+      if (currentSortBy === sortBy) {
+        newSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc'
+      } else {
+        newSortOrder = 'asc'
+      }
+
+      const sortedDishes = innerSort(filteredDishes, sortBy, newSortOrder)
+
+      setCurrentSortBy(sortBy)
+      setCurrentSortOrder(newSortOrder)
+      setFilteredDishes(sortedDishes)
     }
-
-    const sortedDishes = innerSort(data.dishes, sortBy, newSortOrder)
-
-    setCurrentSortBy(sortBy)
-    setCurrentSortOrder(newSortOrder)
-
-    client.writeQuery({
-      query: DISHES_QUERY,
-      data: {
-        dishes: sortedDishes,
-      },
-    })
   }
 
   const addFilter = (filter) => {
@@ -192,12 +189,5 @@ const DishList = styled.div`
     }
   }
 `
-
-Dishes.propTypes = {
-  client: PropTypes.shape({
-    readQuery: PropTypes.func.isRequired,
-    writeQuery: PropTypes.func.isRequired,
-  }).isRequired,
-}
 
 export default withApollo(Dishes)
