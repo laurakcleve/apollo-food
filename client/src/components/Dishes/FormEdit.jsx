@@ -6,18 +6,21 @@ import styled from 'styled-components'
 
 const FormEdit = ({ setIsEditing, dish }) => {
   const [name, setName] = useState(dish.name)
+  const [tags, setTags] = useState([])
   const [ingredientSets, setIngredientSets] = useState([]) // checking this for reference, need to copy?
 
   const { data } = useQuery(ITEMS_QUERY)
+  const { data: dataDishTags } = useQuery(DISH_TAGS_QUERY)
   const [updateDish] = useMutation(UPDATE_DISH_MUTATION, {
     onCompleted: () => setIsEditing(false),
   })
 
   useEffect(() => {
-    setIngredientSets(strip(dish.ingredientSets))
-  }, [dish.ingredientSets])
+    setIngredientSets(stripIngredientSets(dish.ingredientSets))
+    setTags(stripTags(dish.tags))
+  }, [dish.ingredientSets, dish.tags])
 
-  const strip = (originalIngredientSets) => {
+  const stripIngredientSets = (originalIngredientSets) => {
     const strippedIngredientSets = originalIngredientSets.map((ingredientSet) => {
       const { __typename, ...newIngredientSet } = ingredientSet
       newIngredientSet.ingredients = newIngredientSet.ingredients.map(
@@ -31,6 +34,14 @@ const FormEdit = ({ setIsEditing, dish }) => {
       return newIngredientSet
     })
     return strippedIngredientSets
+  }
+
+  const stripTags = (originalTags) => {
+    const strippedTags = originalTags.map((tag) => {
+      const { __typename, ...newTag } = tag
+      return newTag
+    })
+    return strippedTags
   }
 
   const addIngredientSet = () => {
@@ -92,11 +103,32 @@ const FormEdit = ({ setIsEditing, dish }) => {
     setIngredientSets(newIngredientSets)
   }
 
+  const addTag = () => {
+    const newTags = [...tags]
+    newTags.push({
+      id: Date.now(),
+      name: '',
+    })
+    setTags(newTags)
+  }
+
+  const updateTag = (index, value) => {
+    const newTags = [...tags]
+    newTags[index].name = value
+    setTags(newTags)
+  }
+
+  const removeTag = (index) => {
+    const newTags = [...tags]
+    newTags.splice(index, 1)
+    setTags(newTags)
+  }
+
   return (
     <Form
       onSubmit={(event) => {
         event.preventDefault()
-        updateDish({ variables: { id: dish.id, name, ingredientSets } })
+        updateDish({ variables: { id: dish.id, name, tags, ingredientSets } })
       }}
     >
       <Row>
@@ -109,6 +141,35 @@ const FormEdit = ({ setIsEditing, dish }) => {
             onChange={(event) => setName(event.target.value)}
           />
         </label>
+      </Row>
+
+      <Row className="tags">
+        <div className="label">Tags</div>
+        <div>
+          {tags &&
+            tags.map((tag, index) => (
+              <React.Fragment key={tag.id}>
+                <input
+                  key={tag.id}
+                  list="tagList"
+                  value={tag.name}
+                  onChange={(event) => updateTag(index, event.target.value)}
+                />
+                <datalist id="tagList">
+                  {dataDishTags.dishTags &&
+                    dataDishTags.dishTags.map((dishTag) => (
+                      <option key={dishTag.id}>{dishTag.name}</option>
+                    ))}
+                </datalist>
+                <button type="button" onClick={() => removeTag(index)}>
+                  X
+                </button>
+              </React.Fragment>
+            ))}
+        </div>
+        <button type="button" onClick={addTag}>
+          Add tag
+        </button>
       </Row>
 
       {ingredientSets.map((ingredientSet, ingredientSetIndex) => (
@@ -188,15 +249,29 @@ const ITEMS_QUERY = gql`
   }
 `
 
+const DISH_TAGS_QUERY = gql`
+  query dishTags {
+    dishTags {
+      id
+      name
+    }
+  }
+`
+
 const UPDATE_DISH_MUTATION = gql`
   mutation updateDish(
     $id: ID!
     $name: String!
+    $tags: [DishTagInput]!
     $ingredientSets: [IngredientSetInput]!
   ) {
-    updateDish(id: $id, name: $name, ingredientSets: $ingredientSets) {
+    updateDish(id: $id, name: $name, tags: $tags, ingredientSets: $ingredientSets) {
       id
       name
+      tags {
+        id
+        name
+      }
       ingredientSets {
         id
         optional
@@ -248,6 +323,12 @@ FormEdit.propTypes = {
       PropTypes.shape({
         id: PropTypes.string.isRequired,
         date: PropTypes.string.isRequired,
+      })
+    ),
+    tags: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        name: PropTypes.string.isRequired,
       })
     ),
     ingredientSets: PropTypes.arrayOf(

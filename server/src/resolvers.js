@@ -61,8 +61,8 @@ const resolvers = {
       dataSources.inventoryItemsAPI.deleteInventoryItem({ id }),
     addDish: (_, { name, tags, ingredientSets }, { dataSources }) =>
       dataSources.dishesAPI.addDish({ name, tags, ingredientSets }),
-    updateDish: (_, { id, name, ingredientSets }, { dataSources }) =>
-      dataSources.dishesAPI.updateDish({ id, name, ingredientSets }),
+    updateDish: (_, { id, name, tags, ingredientSets }, { dataSources }) =>
+      dataSources.dishesAPI.updateDish({ id, name, tags, ingredientSets }),
     deleteDish: (_, { id }, { dataSources }) =>
       dataSources.dishesAPI.deleteDish({ id }),
     addDishDate: (_, { dishID, date }, { dataSources }) =>

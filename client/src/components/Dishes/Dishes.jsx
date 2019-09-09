@@ -15,9 +15,6 @@ const Dishes = ({ client }) => {
   const { loading, error, data } = useQuery(DISHES_QUERY)
 
   const innerSort = (items, sortBy, sortOrder) => {
-    console.log(items)
-    console.log('inner sorting by', sortBy, sortOrder)
-
     const sortedItems = [].concat(items)
 
     if (sortBy === 'name') {
@@ -35,8 +32,6 @@ const Dishes = ({ client }) => {
     }
 
     if (sortOrder === 'desc') sortedItems.reverse()
-
-    console.log('sorted:', sortedItems)
 
     return sortedItems
   }

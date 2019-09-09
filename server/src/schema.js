@@ -40,7 +40,12 @@ const typeDefs = gql`
       tags: [DishTagInput]!
       ingredientSets: [IngredientSetInput]!
     ): Dish!
-    updateDish(id: ID!, name: String!, ingredientSets: [IngredientSetInput]!): Dish!
+    updateDish(
+      id: ID!
+      name: String!
+      tags: [DishTagInput]!
+      ingredientSets: [IngredientSetInput]!
+    ): Dish!
     deleteDish(id: ID!): Int
     addDishDate(dishID: ID!, date: String!): DishDate!
     deleteDishDate(id: ID!): Int

@@ -204,16 +204,27 @@ class DishesAPI extends DataSource {
     })
   }
 
-  updateDish({ id, name, ingredientSets }) {
+  updateDish({ id, name, tags, ingredientSets }) {
     // Building the return object
-    const updatedDish = { id, name }
+    const updatedDish = { id, name, tags: [] }
 
-    const queryString = `
+    const deleteTagsPromise = () => {
+      const queryString = `
+        DELETE FROM item_has_dish_tag
+        WHERE item_id = $1  
+      `
+      return client.query(queryString, [Number(id)])
+    }
+
+    const deleteIngredientSetsPromise = () => {
+      const queryString = `
       DELETE FROM ingredient_set
       WHERE parent_item_id = $1
-    `
-    return client
-      .query(queryString, [Number(id)])
+      `
+      return client.query(queryString, [Number(id)])
+    }
+
+    return Promise.all([deleteTagsPromise(), deleteIngredientSetsPromise()])
       .then(() => {
         const updateDishQueryString = `
           UPDATE item
@@ -221,7 +232,26 @@ class DishesAPI extends DataSource {
           WHERE id = $1
           RETURNING *
         `
-        return client.query(updateDishQueryString, [Number(id), name])
+        const namePromise = client.query(updateDishQueryString, [Number(id), name])
+
+        const tagsPromises = tags.map((tag) => {
+          const tagQueryString = `
+            WITH retrieved_dish_tag_id AS (
+              SELECT tag_id_for_insert($2)
+            )
+            INSERT INTO item_has_dish_tag(item_id, dish_tag_id) 
+            SELECT 
+              $1 as item_id, 
+              (SELECT * FROM retrieved_dish_tag_id) AS dish_tag_id
+            RETURNING *
+          `
+          return client.query(tagQueryString, [id, tag.name]).then((tagResults) => {
+            // Building the return object
+            updatedDish.tags.push({ id: tagResults.rows[0].id, name: tag.name })
+          })
+        })
+
+        return Promise.all([namePromise].concat(tagsPromises))
       })
       .then(() => {
         // Building the return object
