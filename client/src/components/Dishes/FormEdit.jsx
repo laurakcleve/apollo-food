@@ -37,6 +37,7 @@ const FormEdit = ({ setIsEditing, dish }) => {
     const newIngredientSets = [...ingredientSets]
     newIngredientSets.push({
       id: Date.now(),
+      optional: false,
       ingredients: [
         {
           id: Date.now(),
@@ -115,7 +116,7 @@ const FormEdit = ({ setIsEditing, dish }) => {
           <div className="label">Ingredient</div>
           <div>
             {ingredientSet.ingredients.map((ingredient, ingredientIndex) => (
-              <div key={ingredient.id} className="ingredient">
+              <div key={ingredient.id}>
                 <input
                   type="text"
                   list="itemList"
@@ -231,8 +232,6 @@ const Row = styled.div`
   }
   .ingredient-set {
     display: flex;
-    .ingredient {
-    }
   }
   button.add-substitute,
   button.remove {

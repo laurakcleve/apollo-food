@@ -22,9 +22,11 @@ const FormAdd = ({ DISHES_QUERY }) => {
   ]
 
   const [name, setName] = useState('')
+  const [tags, setTags] = useState([{ id: Date.now(), name: '' }])
   const [ingredientSets, setIngredientSets] = useState(initialIngredientSets)
 
   const { loading, error, data } = useQuery(ITEMS_QUERY)
+  const { data: dataDishTags } = useQuery(DISH_TAGS_QUERY)
   const [addDish] = useMutation(ADD_DISH_MUTATION, {
     refetchQueries: [
       {
@@ -103,6 +105,27 @@ const FormAdd = ({ DISHES_QUERY }) => {
     setIngredientSets(newIngredientSets)
   }
 
+  const addTag = () => {
+    const newTags = [...tags]
+    newTags.push({
+      id: Date.now(),
+      name: '',
+    })
+    setTags(newTags)
+  }
+
+  const updateTag = (index, value) => {
+    const newTags = [...tags]
+    newTags[index].name = value
+    setTags(newTags)
+  }
+
+  const removeTag = (index) => {
+    const newTags = [...tags]
+    newTags.splice(index, 1)
+    setTags(newTags)
+  }
+
   return (
     <Form
       onSubmit={(event) => {
@@ -111,6 +134,7 @@ const FormAdd = ({ DISHES_QUERY }) => {
           addDish({
             variables: {
               name,
+              tags,
               ingredientSets,
             },
           })
@@ -128,6 +152,33 @@ const FormAdd = ({ DISHES_QUERY }) => {
             onChange={(event) => setName(event.target.value)}
           />
         </label>
+      </Row>
+
+      <Row className="tags">
+        <div className="label">Tags</div>
+        <div>
+          {tags &&
+            tags.map((tag, index) => (
+              <React.Fragment key={tag.id}>
+                <input
+                  key={tag.id}
+                  list="tagList"
+                  value={tag.name}
+                  onChange={(event) => updateTag(index, event.target.value)}
+                />
+                <datalist id="tagList">
+                  {dataDishTags.dishTags &&
+                    dataDishTags.dishTags.map((dishTag) => (
+                      <option key={dishTag.id}>{dishTag.name}</option>
+                    ))}
+                </datalist>
+                <button type="button" onClick={() => removeTag(index)}>
+                  X
+                </button>
+              </React.Fragment>
+            ))}
+        </div>
+        <button onClick={addTag}>Add tag</button>
       </Row>
 
       {ingredientSets.map((ingredientSet, ingredientSetIndex) => (
@@ -203,8 +254,12 @@ const ITEMS_QUERY = gql`
 `
 
 const ADD_DISH_MUTATION = gql`
-  mutation addDish($name: String!, $ingredientSets: [IngredientSetInput]!) {
-    addDish(name: $name, ingredientSets: $ingredientSets) {
+  mutation addDish(
+    $name: String!
+    $tags: [DishTagInput]!
+    $ingredientSets: [IngredientSetInput]!
+  ) {
+    addDish(name: $name, tags: $tags, ingredientSets: $ingredientSets) {
       id
       name
       ingredientSets {
@@ -217,11 +272,25 @@ const ADD_DISH_MUTATION = gql`
           }
         }
       }
+      tags {
+        id
+        name
+      }
+    }
+  }
+`
+
+const DISH_TAGS_QUERY = gql`
+  query dishTags {
+    dishTags {
+      id
+      name
     }
   }
 `
 
 const Form = styled.form`
+  width: 700px;
   label {
     display: block;
   }
@@ -236,6 +305,9 @@ const Row = styled.div`
   }
   .label {
     width: 110px;
+  }
+  .tags {
+    display: flex;
   }
 `
 

@@ -10,6 +10,7 @@ const typeDefs = gql`
     dish(id: ID!): Dish
     categories: [Category]!
     itemLocations: [ItemLocation]!
+    dishTags: [DishTag]!
   }
 
   type Mutation {
@@ -34,7 +35,11 @@ const typeDefs = gql`
       location: String
     ): InventoryItem!
     deleteInventoryItem(id: ID!): Int
-    addDish(name: String!, ingredientSets: [IngredientSetInput]!): Dish!
+    addDish(
+      name: String!
+      tags: [DishTagInput]!
+      ingredientSets: [IngredientSetInput]!
+    ): Dish!
     updateDish(id: ID!, name: String!, ingredientSets: [IngredientSetInput]!): Dish!
     deleteDish(id: ID!): Int
     addDishDate(dishID: ID!, date: String!): DishDate!
@@ -94,6 +99,11 @@ const typeDefs = gql`
   }
 
   type DishTag {
+    id: ID!
+    name: String!
+  }
+
+  input DishTagInput {
     id: ID!
     name: String!
   }

@@ -12,6 +12,7 @@ const resolvers = {
       dataSources.categoriesAPI.getCategories(),
     itemLocations: (_, __, { dataSources }) =>
       dataSources.itemLocationsAPI.getLocations(),
+    dishTags: (_, __, { dataSources }) => dataSources.dishTagsAPI.getTags(),
   },
 
   Mutation: {
@@ -58,8 +59,8 @@ const resolvers = {
       }),
     deleteInventoryItem: (_, { id }, { dataSources }) =>
       dataSources.inventoryItemsAPI.deleteInventoryItem({ id }),
-    addDish: (_, { name, ingredientSets }, { dataSources }) =>
-      dataSources.dishesAPI.addDish({ name, ingredientSets }),
+    addDish: (_, { name, tags, ingredientSets }, { dataSources }) =>
+      dataSources.dishesAPI.addDish({ name, tags, ingredientSets }),
     updateDish: (_, { id, name, ingredientSets }, { dataSources }) =>
       dataSources.dishesAPI.updateDish({ id, name, ingredientSets }),
     deleteDish: (_, { id }, { dataSources }) =>

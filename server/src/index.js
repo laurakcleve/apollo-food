@@ -8,6 +8,7 @@ const InventoryItemsAPI = require('./datasources/inventoryItems')
 const DishesAPI = require('./datasources/dishes')
 const CategoriesAPI = require('./datasources/categories')
 const ItemLocationsAPI = require('./datasources/itemLocations')
+const DishTagsAPI = require('./datasources/dishTags')
 
 const server = new ApolloServer({
   typeDefs,
@@ -18,6 +19,7 @@ const server = new ApolloServer({
     dishesAPI: new DishesAPI(),
     categoriesAPI: new CategoriesAPI(),
     itemLocationsAPI: new ItemLocationsAPI(),
+    dishTagsAPI: new DishTagsAPI(),
   }),
 })
 
