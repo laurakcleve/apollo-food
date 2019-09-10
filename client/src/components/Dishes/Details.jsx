@@ -7,14 +7,23 @@ import moment from 'moment'
 import FormAddDate from './FormAddDate'
 import FormEdit from './FormEdit'
 
-const Details = ({ dish, DISHES_QUERY }) => {
+const Details = ({ dish, SORTED_FILTERED_DISHES_QUERY }) => {
   const [isEditing, setIsEditing] = useState(false)
 
+  const [sortAndFilterDishes] = useMutation(SORT_AND_FILTER_DISHES_MUTATION)
   const [deleteDish] = useMutation(DELETE_DISH_MUTATION, {
-    refetchQueries: [{ query: DISHES_QUERY }],
+    refetchQueries: [
+      { query: SORTED_FILTERED_DISHES_QUERY },
+      { query: DISHES_QUERY },
+    ],
+    awaitRefetchQueries: true,
+    onCompleted: () => sortAndFilterDishes(),
   })
   const [deleteDishDate] = useMutation(DELETE_DISH_DATE_MUTATION, {
-    refetchQueries: [{ query: DISHES_QUERY }],
+    refetchQueries: [
+      { query: SORTED_FILTERED_DISHES_QUERY },
+      { query: DISHES_QUERY },
+    ],
   })
 
   return (
@@ -49,7 +58,10 @@ const Details = ({ dish, DISHES_QUERY }) => {
               </button>
             </p>
           ))}
-          <FormAddDate dishID={dish.id} DISHES_QUERY={DISHES_QUERY} />
+          <FormAddDate
+            dishID={dish.id}
+            DISHES_QUERY={SORTED_FILTERED_DISHES_QUERY}
+          />
         </Dates>
         <Actions>
           <button type="button" onClick={() => setIsEditing(true)}>
@@ -83,7 +95,39 @@ const DELETE_DISH_DATE_MUTATION = gql`
     deleteDishDate(id: $id)
   }
 `
+const DISHES_QUERY = gql`
+  query dishes {
+    dishes {
+      id
+      name
+      ingredientSets {
+        id
+        optional
+        ingredients {
+          id
+          item {
+            id
+            name
+          }
+        }
+      }
+      dates {
+        id
+        date
+      }
+      tags {
+        id
+        name
+      }
+    }
+  }
+`
 
+const SORT_AND_FILTER_DISHES_MUTATION = gql`
+  mutation sortAndFilterDishes($sortBy: String!, $manual: Boolean) {
+    sortAndFilterDishes(sortBy: $sortBy, manual: $manual) @client
+  }
+`
 const StyledDetails = styled.div`
   padding: 20px;
   border: 1px solid #ccc;
@@ -139,7 +183,7 @@ Details.propTypes = {
       })
     ),
   }).isRequired,
-  DISHES_QUERY: PropTypes.shape({}).isRequired,
+  SORTED_FILTERED_DISHES_QUERY: PropTypes.shape({}).isRequired,
 }
 
 export default Details

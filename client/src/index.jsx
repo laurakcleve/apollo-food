@@ -1,9 +1,12 @@
 import React from 'react'
 import { render } from 'react-dom'
-import ApolloClient from 'apollo-boost'
+import ApolloClient, { InMemoryCache } from 'apollo-boost'
 import { ApolloProvider } from '@apollo/react-hooks'
 import { BrowserRouter, Route } from 'react-router-dom'
 import { ThemeProvider } from 'styled-components'
+
+import typeDefs from './typeDefs'
+import resolvers from './resolvers'
 
 import theme from './theme/theme'
 import GlobalStyles from './theme/GlobalStyles'
@@ -16,7 +19,24 @@ import Inventory from './components/Inventory/Inventory'
 import Dishes from './components/Dishes/Dishes'
 import Purchases from './components/Purchases'
 
-const client = new ApolloClient({ uri: 'http://localhost:4000/graphql' })
+const cache = new InMemoryCache()
+
+const client = new ApolloClient({
+  uri: 'http://localhost:4000/graphql',
+  cache,
+  typeDefs,
+  resolvers,
+})
+
+cache.writeData({
+  data: {
+    filteredDishes: [],
+    currentFilters: ['all'],
+    sortedFilteredDishes: [],
+    currentDishSortBy: 'last date',
+    currentDishSortOrder: 'desc',
+  },
+})
 
 render(
   <ApolloProvider client={client}>

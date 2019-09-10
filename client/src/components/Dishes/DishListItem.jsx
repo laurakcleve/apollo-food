@@ -5,7 +5,12 @@ import moment from 'moment'
 
 import Details from './Details'
 
-const DishListItem = ({ dish, DISHES_QUERY, selectedDishID, setSelectedDishID }) => {
+const DishListItem = ({
+  dish,
+  SORTED_FILTERED_DISHES_QUERY,
+  selectedDishID,
+  setSelectedDishID,
+}) => {
   const toggleOpen = () => {
     if (selectedDishID === dish.id) {
       setSelectedDishID(null)
@@ -32,7 +37,10 @@ const DishListItem = ({ dish, DISHES_QUERY, selectedDishID, setSelectedDishID })
         </div>
       </TitleBar>
       {selectedDishID === dish.id && (
-        <Details dish={dish} DISHES_QUERY={DISHES_QUERY} />
+        <Details
+          dish={dish}
+          SORTED_FILTERED_DISHES_QUERY={SORTED_FILTERED_DISHES_QUERY}
+        />
       )}
     </>
   )
@@ -59,7 +67,7 @@ DishListItem.propTypes = {
   }).isRequired,
   selectedDishID: PropTypes.string,
   setSelectedDishID: PropTypes.func.isRequired,
-  DISHES_QUERY: PropTypes.shape({}).isRequired,
+  SORTED_FILTERED_DISHES_QUERY: PropTypes.shape({}).isRequired,
 }
 
 DishListItem.defaultProps = {

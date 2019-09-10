@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useQuery } from '@apollo/react-hooks'
+import { useQuery, useMutation } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 import { withApollo } from 'react-apollo'
 import styled from 'styled-components'
@@ -10,97 +10,23 @@ import DishListItem from './DishListItem'
 
 const Dishes = () => {
   const [selectedDishID, setSelectedDishID] = useState(null)
-  const [currentSortBy, setCurrentSortBy] = useState('last date')
-  const [currentSortOrder, setCurrentSortOrder] = useState('desc')
-  const [currentFilters, setCurrentFilters] = useState([])
-  const [filteredDishes, setFilteredDishes] = useState(null)
 
-  const { loading, error, data } = useQuery(DISHES_QUERY, {
+  const { data: sortedData } = useQuery(SORTED_FILTERED_DISHES_QUERY)
+  const { data: dishesData } = useQuery(DISHES_QUERY, {
     onCompleted: () => {
-      if (!filteredDishes) setFilteredDishes(data.dishes)
+      if (sortedData && !sortedData.sortedFilteredDishes.length) {
+        sortAndFilterDishes()
+      }
     },
   })
 
-  const innerSort = (items, sortBy, sortOrder) => {
-    const sortedItems = [].concat(items)
-
-    if (sortBy === 'name') {
-      sortedItems.sort((a, b) => {
-        if (a.name < b.name) return -1
-        if (a.name > b.name) return 1
-        return 0
-      })
-    } else if (sortBy === 'last date') {
-      sortedItems.sort((a, b) => {
-        if (a.dates.length <= 0) return -1
-        if (b.dates.length <= 0) return 1
-        if (Number(a.dates[0].date) < Number(b.dates[0].date)) return -1
-        if (Number(a.dates[0].date) > Number(b.dates[0].date)) return 1
-        return 0
-      })
-    }
-
-    if (sortOrder === 'desc') sortedItems.reverse()
-
-    return sortedItems
-  }
-
-  const sort = (sortBy) => {
-    if (filteredDishes) {
-      let newSortOrder
-      if (currentSortBy === sortBy) {
-        newSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc'
-      } else {
-        newSortOrder = 'asc'
-      }
-
-      const sortedDishes = innerSort(filteredDishes, sortBy, newSortOrder)
-
-      setCurrentSortBy(sortBy)
-      setCurrentSortOrder(newSortOrder)
-      setFilteredDishes(sortedDishes)
-    }
-  }
-
-  const addFilter = (filter) => {
-    let newFilters = [...currentFilters]
-    if (filter === 'all') {
-      newFilters = ['all']
-    } else {
-      if (newFilters.includes('all')) newFilters.splice(newFilters.indexOf('all'), 1)
-      if (newFilters.includes(filter)) {
-        newFilters.splice(newFilters.indexOf(filter), 1)
-      } else {
-        newFilters.push(filter)
-      }
-    }
-    setCurrentFilters(newFilters)
-    console.log('new filters:', newFilters)
-
-    if (data.dishes) {
-      let newFilteredDishes
-      if (filter === 'all') newFilteredDishes = data.dishes
-      else {
-        newFilteredDishes = data.dishes.filter((dish) => {
-          let tagFound = false
-          dish.tags.forEach((tag) => {
-            if (newFilters.includes(tag.name)) tagFound = true
-          })
-          return tagFound
-        })
-      }
-      setFilteredDishes(newFilteredDishes)
-    }
-  }
-
-  if (loading) return <p>Loading...</p>
-  if (error) return <p>Error</p>
+  const [sortAndFilterDishes] = useMutation(SORT_AND_FILTER_DISHES_MUTATION)
 
   return (
     <StyledDishes>
       <h1>Dishes</h1>
       <div className="container">
-        <Sidebar addFilter={addFilter} currentFilters={currentFilters} />
+        <Sidebar sortAndFilterDishes={sortAndFilterDishes} />
         <div className="content">
           <DishList>
             <div style={{ display: 'flex' }}>
@@ -108,7 +34,11 @@ const Dishes = () => {
                 role="button"
                 tabIndex="-1"
                 className="column column--name"
-                onClick={() => sort('name')}
+                onClick={() =>
+                  sortAndFilterDishes({
+                    variables: { sortBy: 'name', manual: true },
+                  })
+                }
               >
                 Name
               </div>
@@ -116,23 +46,28 @@ const Dishes = () => {
                 role="button"
                 tabIndex="-1"
                 className="column column--last-date"
-                onClick={() => sort('last date')}
+                onClick={() =>
+                  sortAndFilterDishes({
+                    variables: { sortBy: 'last date', manual: true },
+                  })
+                }
               >
                 Last Date
               </div>
             </div>
-            {filteredDishes &&
-              filteredDishes.map((dish) => (
+            {sortedData &&
+              sortedData.sortedFilteredDishes &&
+              sortedData.sortedFilteredDishes.map((dish) => (
                 <DishListItem
                   key={dish.id}
                   dish={dish}
-                  DISHES_QUERY={DISHES_QUERY}
+                  SORTED_FILTERED_DISHES_QUERY={SORTED_FILTERED_DISHES_QUERY}
                   selectedDishID={selectedDishID}
                   setSelectedDishID={setSelectedDishID}
                 />
               ))}
           </DishList>
-          <FormAdd DISHES_QUERY={DISHES_QUERY} />
+          <FormAdd SORTED_FILTERED_DISHES_QUERY={SORTED_FILTERED_DISHES_QUERY} />
         </div>
       </div>
     </StyledDishes>
@@ -164,6 +99,40 @@ const DISHES_QUERY = gql`
         name
       }
     }
+  }
+`
+
+const SORTED_FILTERED_DISHES_QUERY = gql`
+  query sortedFilteredDishes {
+    sortedFilteredDishes @client {
+      id
+      name
+      ingredientSets {
+        id
+        optional
+        ingredients {
+          id
+          item {
+            id
+            name
+          }
+        }
+      }
+      dates {
+        id
+        date
+      }
+      tags {
+        id
+        name
+      }
+    }
+  }
+`
+
+const SORT_AND_FILTER_DISHES_MUTATION = gql`
+  mutation sortAndFilterDishes($sortBy: String, $manual: Boolean) {
+    sortAndFilterDishes(sortBy: $sortBy, manual: $manual) @client
   }
 `
 

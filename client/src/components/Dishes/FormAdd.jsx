@@ -4,7 +4,7 @@ import { gql } from 'apollo-boost'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 
-const FormAdd = ({ DISHES_QUERY }) => {
+const FormAdd = ({ SORTED_FILTERED_DISHES_QUERY }) => {
   const initialIngredientSets = [
     {
       id: Date.now(),
@@ -27,14 +27,20 @@ const FormAdd = ({ DISHES_QUERY }) => {
 
   const { loading, error, data } = useQuery(ITEMS_QUERY)
   const { data: dataDishTags } = useQuery(DISH_TAGS_QUERY)
+  const [sortAndFilterDishes] = useMutation(SORT_AND_FILTER_DISHES_MUTATION)
   const [addDish] = useMutation(ADD_DISH_MUTATION, {
     refetchQueries: [
+      {
+        query: SORTED_FILTERED_DISHES_QUERY,
+      },
       {
         query: DISHES_QUERY,
       },
     ],
+    awaitRefetchQueries: true,
     onCompleted: () => {
       resetInputs()
+      sortAndFilterDishes({ variables: { sortBy: 'last date' } })
     },
   })
 
@@ -281,6 +287,33 @@ const ADD_DISH_MUTATION = gql`
     }
   }
 `
+const DISHES_QUERY = gql`
+  query dishes {
+    dishes {
+      id
+      name
+      ingredientSets {
+        id
+        optional
+        ingredients {
+          id
+          item {
+            id
+            name
+          }
+        }
+      }
+      dates {
+        id
+        date
+      }
+      tags {
+        id
+        name
+      }
+    }
+  }
+`
 
 const DISH_TAGS_QUERY = gql`
   query dishTags {
@@ -288,6 +321,12 @@ const DISH_TAGS_QUERY = gql`
       id
       name
     }
+  }
+`
+
+const SORT_AND_FILTER_DISHES_MUTATION = gql`
+  mutation sortAndFilterDishes($sortBy: String!, $manual: Boolean) {
+    sortAndFilterDishes(sortBy: $sortBy, manual: $manual) @client
   }
 `
 
@@ -314,7 +353,7 @@ const Row = styled.div`
 `
 
 FormAdd.propTypes = {
-  DISHES_QUERY: PropTypes.shape({}).isRequired,
+  SORTED_FILTERED_DISHES_QUERY: PropTypes.shape({}).isRequired,
 }
 
 export default FormAdd
