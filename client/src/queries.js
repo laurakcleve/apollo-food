@@ -85,6 +85,19 @@ export const ITEMS_QUERY = gql`
     items {
       id
       name
+      default_shelflife
+      category {
+        id
+        name
+      }
+      countsAs {
+        id
+        name
+      }
+      dishes {
+        id
+        name
+      }
     }
   }
 `
