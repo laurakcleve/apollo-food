@@ -7,7 +7,13 @@ import moment from 'moment'
 import FormAddDate from './FormAddDate'
 import FormEdit from './FormEdit'
 
-const Details = ({ dish, SORTED_FILTERED_DISHES_QUERY }) => {
+import {
+  DISHES_QUERY,
+  SORTED_FILTERED_DISHES_QUERY,
+  SORT_AND_FILTER_DISHES_MUTATION,
+} from '../../queries'
+
+const Details = ({ dish }) => {
   const [isEditing, setIsEditing] = useState(false)
 
   const [sortAndFilterDishes] = useMutation(SORT_AND_FILTER_DISHES_MUTATION)
@@ -95,39 +101,6 @@ const DELETE_DISH_DATE_MUTATION = gql`
     deleteDishDate(id: $id)
   }
 `
-const DISHES_QUERY = gql`
-  query dishes {
-    dishes {
-      id
-      name
-      ingredientSets {
-        id
-        optional
-        ingredients {
-          id
-          item {
-            id
-            name
-          }
-        }
-      }
-      dates {
-        id
-        date
-      }
-      tags {
-        id
-        name
-      }
-    }
-  }
-`
-
-const SORT_AND_FILTER_DISHES_MUTATION = gql`
-  mutation sortAndFilterDishes($sortBy: String!, $manual: Boolean) {
-    sortAndFilterDishes(sortBy: $sortBy, manual: $manual) @client
-  }
-`
 const StyledDetails = styled.div`
   padding: 20px;
   border: 1px solid #ccc;
@@ -183,7 +156,6 @@ Details.propTypes = {
       })
     ),
   }).isRequired,
-  SORTED_FILTERED_DISHES_QUERY: PropTypes.shape({}).isRequired,
 }
 
 export default Details

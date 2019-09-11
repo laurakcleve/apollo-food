@@ -4,6 +4,8 @@ import { gql } from 'apollo-boost'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 
+import { DISH_TAGS_QUERY, ITEMS_QUERY } from '../../queries'
+
 const FormEdit = ({ setIsEditing, dish }) => {
   const [name, setName] = useState(dish.name)
   const [tags, setTags] = useState([])
@@ -239,24 +241,6 @@ const FormEdit = ({ setIsEditing, dish }) => {
     </Form>
   )
 }
-
-const ITEMS_QUERY = gql`
-  query items {
-    items {
-      id
-      name
-    }
-  }
-`
-
-const DISH_TAGS_QUERY = gql`
-  query dishTags {
-    dishTags {
-      id
-      name
-    }
-  }
-`
 
 const UPDATE_DISH_MUTATION = gql`
   mutation updateDish(

@@ -61,7 +61,6 @@ const ADD_DISH_DATE_MUTATION = gql`
 
 FormAddDate.propTypes = {
   dishID: PropTypes.string.isRequired,
-  DISHES_QUERY: PropTypes.shape({}).isRequired,
 }
 
 export default FormAddDate

@@ -67,3 +67,21 @@ export const CURRENT_FILTERS_QUERY = gql`
     currentFilters @client
   }
 `
+
+export const ITEMS_QUERY = gql`
+  query items {
+    items {
+      id
+      name
+    }
+  }
+`
+
+export const DISH_TAGS_QUERY = gql`
+  query dishTags {
+    dishTags {
+      id
+      name
+    }
+  }
+`

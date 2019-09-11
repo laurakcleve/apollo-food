@@ -1,10 +1,17 @@
 import React, { useState } from 'react'
 import { useQuery, useMutation } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
-import PropTypes from 'prop-types'
 import styled from 'styled-components'
 
-const FormAdd = ({ SORTED_FILTERED_DISHES_QUERY }) => {
+import {
+  DISHES_QUERY,
+  SORTED_FILTERED_DISHES_QUERY,
+  SORT_AND_FILTER_DISHES_MUTATION,
+  ITEMS_QUERY,
+  DISH_TAGS_QUERY,
+} from '../../queries'
+
+const FormAdd = () => {
   const initialIngredientSets = [
     {
       id: Date.now(),
@@ -248,15 +255,6 @@ const FormAdd = ({ SORTED_FILTERED_DISHES_QUERY }) => {
   )
 }
 
-const ITEMS_QUERY = gql`
-  query items {
-    items {
-      id
-      name
-    }
-  }
-`
-
 const ADD_DISH_MUTATION = gql`
   mutation addDish(
     $name: String!
@@ -283,48 +281,6 @@ const ADD_DISH_MUTATION = gql`
     }
   }
 `
-const DISHES_QUERY = gql`
-  query dishes {
-    dishes {
-      id
-      name
-      ingredientSets {
-        id
-        optional
-        ingredients {
-          id
-          item {
-            id
-            name
-          }
-        }
-      }
-      dates {
-        id
-        date
-      }
-      tags {
-        id
-        name
-      }
-    }
-  }
-`
-
-const DISH_TAGS_QUERY = gql`
-  query dishTags {
-    dishTags {
-      id
-      name
-    }
-  }
-`
-
-const SORT_AND_FILTER_DISHES_MUTATION = gql`
-  mutation sortAndFilterDishes($sortBy: String!, $manual: Boolean) {
-    sortAndFilterDishes(sortBy: $sortBy, manual: $manual) @client
-  }
-`
 
 const Form = styled.form`
   width: 700px;
@@ -347,9 +303,5 @@ const Row = styled.div`
     display: flex;
   }
 `
-
-FormAdd.propTypes = {
-  SORTED_FILTERED_DISHES_QUERY: PropTypes.shape({}).isRequired,
-}
 
 export default FormAdd

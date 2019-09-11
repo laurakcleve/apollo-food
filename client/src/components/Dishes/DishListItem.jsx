@@ -5,12 +5,7 @@ import moment from 'moment'
 
 import Details from './Details'
 
-const DishListItem = ({
-  dish,
-  SORTED_FILTERED_DISHES_QUERY,
-  selectedDishID,
-  setSelectedDishID,
-}) => {
+const DishListItem = ({ dish, selectedDishID, setSelectedDishID }) => {
   const toggleOpen = () => {
     if (selectedDishID === dish.id) {
       setSelectedDishID(null)
@@ -36,12 +31,7 @@ const DishListItem = ({
             moment(Number(dish.dates[0].date)).format('M/D/YY')}
         </div>
       </TitleBar>
-      {selectedDishID === dish.id && (
-        <Details
-          dish={dish}
-          SORTED_FILTERED_DISHES_QUERY={SORTED_FILTERED_DISHES_QUERY}
-        />
-      )}
+      {selectedDishID === dish.id && <Details dish={dish} />}
     </>
   )
 }
@@ -67,7 +57,6 @@ DishListItem.propTypes = {
   }).isRequired,
   selectedDishID: PropTypes.string,
   setSelectedDishID: PropTypes.func.isRequired,
-  SORTED_FILTERED_DISHES_QUERY: PropTypes.shape({}).isRequired,
 }
 
 DishListItem.defaultProps = {

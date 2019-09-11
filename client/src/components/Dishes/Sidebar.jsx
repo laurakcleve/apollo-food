@@ -3,14 +3,18 @@ import styled from 'styled-components'
 import { useQuery, useMutation } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 
-import { SORT_AND_FILTER_DISHES_MUTATION } from '../../queries'
+import {
+  SORT_AND_FILTER_DISHES_MUTATION,
+  DISH_TAGS_QUERY,
+  CURRENT_FILTERS_QUERY,
+} from '../../queries'
 
 const Sidebar = () => {
   const { loading: tagsLoading, error: tagsError, data: tagsData } = useQuery(
     DISH_TAGS_QUERY
   )
-  const { data: sortByData, loading: sortByLoading, error: sortByError } = useQuery(
-    SORT_BY_QUERY
+  const { loading: sortByLoading, error: sortByError, data: sortByData } = useQuery(
+    CURRENT_DISH_SORT_BY_QUERY
   )
   const {
     loading: filtersLoading,
@@ -62,24 +66,9 @@ const StyledSidebar = styled.div`
 
 const Tags = styled.div``
 
-const SORT_BY_QUERY = gql`
+const CURRENT_DISH_SORT_BY_QUERY = gql`
   query sortByQuery {
     currentDishSortBy @client
-  }
-`
-
-const DISH_TAGS_QUERY = gql`
-  query dishTags {
-    dishTags {
-      id
-      name
-    }
-  }
-`
-
-const CURRENT_FILTERS_QUERY = gql`
-  query currentFilters {
-    currentFilters @client
   }
 `
 

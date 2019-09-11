@@ -1,13 +1,16 @@
 import React, { useState } from 'react'
 import { useQuery, useMutation } from '@apollo/react-hooks'
-import { gql } from 'apollo-boost'
 import { withApollo } from 'react-apollo'
 import styled from 'styled-components'
 
 import Sidebar from './Sidebar'
 import FormAdd from './FormAdd'
 import DishListItem from './DishListItem'
-import { DISHES_QUERY, SORTED_FILTERED_DISHES_QUERY } from '../../queries'
+import {
+  DISHES_QUERY,
+  SORTED_FILTERED_DISHES_QUERY,
+  SORT_AND_FILTER_DISHES_MUTATION,
+} from '../../queries'
 
 const Dishes = () => {
   const [selectedDishID, setSelectedDishID] = useState(null)
@@ -64,24 +67,17 @@ const Dishes = () => {
                 <DishListItem
                   key={dish.id}
                   dish={dish}
-                  SORTED_FILTERED_DISHES_QUERY={SORTED_FILTERED_DISHES_QUERY}
                   selectedDishID={selectedDishID}
                   setSelectedDishID={setSelectedDishID}
                 />
               ))}
           </DishList>
-          <FormAdd SORTED_FILTERED_DISHES_QUERY={SORTED_FILTERED_DISHES_QUERY} />
+          <FormAdd />
         </div>
       </div>
     </StyledDishes>
   )
 }
-
-const SORT_AND_FILTER_DISHES_MUTATION = gql`
-  mutation sortAndFilterDishes($sortBy: String, $manual: Boolean) {
-    sortAndFilterDishes(sortBy: $sortBy, manual: $manual) @client
-  }
-`
 
 const StyledDishes = styled.div`
   max-width: ${({ theme }) => theme.containerWidth};
