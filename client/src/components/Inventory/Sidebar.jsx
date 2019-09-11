@@ -1,12 +1,19 @@
 import React from 'react'
 import styled from 'styled-components'
-import PropTypes from 'prop-types'
-import { useQuery } from '@apollo/react-hooks'
-import { gql } from 'apollo-boost'
+import { useQuery, useApolloClient, useMutation } from '@apollo/react-hooks'
 import { withApollo } from 'react-apollo'
 
-const Sidebar = ({ filter }) => {
+import {
+  LOCATIONS_QUERY,
+  SORT_AND_FILTER_INVENTORY_ITEMS_MUTATION,
+} from '../../queries'
+
+const Sidebar = () => {
+  const client = useApolloClient()
   const { loading, error, data } = useQuery(LOCATIONS_QUERY)
+  const [sortAndFilterInventoryItems] = useMutation(
+    SORT_AND_FILTER_INVENTORY_ITEMS_MUTATION
+  )
 
   return (
     <StyledSidebar>
@@ -20,7 +27,12 @@ const Sidebar = ({ filter }) => {
               <div
                 role="button"
                 tabIndex="-1"
-                onClick={() => filter(location.name)}
+                onClick={() => {
+                  client.writeData({
+                    data: { currentInventoryFilter: location.name },
+                  })
+                  sortAndFilterInventoryItems()
+                }}
                 key={location.id}
               >
                 {location.name}
@@ -36,18 +48,5 @@ const StyledSidebar = styled.div`
 `
 
 const Locations = styled.div``
-
-const LOCATIONS_QUERY = gql`
-  query itemLocations {
-    itemLocations {
-      id
-      name
-    }
-  }
-`
-
-Sidebar.propTypes = {
-  filter: PropTypes.func.isRequired,
-}
 
 export default withApollo(Sidebar)

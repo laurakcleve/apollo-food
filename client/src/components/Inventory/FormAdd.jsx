@@ -1,11 +1,18 @@
 import React, { useState, useRef } from 'react'
 import { useQuery, useMutation } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
-import PropTypes from 'prop-types'
 import moment from 'moment'
 import styled from 'styled-components'
 
-const FormAdd = ({ setIsSorted, INVENTORY_ITEMS_QUERY }) => {
+import {
+  ITEMS_QUERY,
+  INVENTORY_ITEMS_QUERY,
+  CATEGORIES_QUERY,
+  LOCATIONS_QUERY,
+  SORT_AND_FILTER_INVENTORY_ITEMS_MUTATION,
+} from '../../queries'
+
+const FormAdd = () => {
   const [name, setName] = useState('')
   const [amount, setAmount] = useState('')
   const [addDate, setAddDate] = useState(moment().format('M/D/YY'))
@@ -25,19 +32,17 @@ const FormAdd = ({ setIsSorted, INVENTORY_ITEMS_QUERY }) => {
     error: errorLocations,
     data: dataLocations,
   } = useQuery(LOCATIONS_QUERY)
+
+  const [sortAndFilterInventoryItems] = useMutation(
+    SORT_AND_FILTER_INVENTORY_ITEMS_MUTATION
+  )
   const [addInventoryItem] = useMutation(ADD_INVENTORY_ITEM_MUTATION, {
+    refetchQueries: [{ query: INVENTORY_ITEMS_QUERY }, { query: ITEMS_QUERY }],
+    awaitRefetchQueries: true,
     onCompleted: () => {
       resetInputs()
-      setIsSorted(false)
+      sortAndFilterInventoryItems()
     },
-    refetchQueries: [
-      {
-        query: INVENTORY_ITEMS_QUERY,
-      },
-      {
-        query: ITEMS_QUERY,
-      },
-    ],
   })
 
   const nameInput = useRef(null)
@@ -49,7 +54,6 @@ const FormAdd = ({ setIsSorted, INVENTORY_ITEMS_QUERY }) => {
   const checkItemDetails = () => {
     if (name === '') return
     const itemObj = data.items.filter((item) => item.name === name)[0]
-    console.log('itemObj', itemObj)
     if (itemObj && itemObj.default_shelflife)
       setShelflife(Number(itemObj.default_shelflife))
     if (itemObj && itemObj.category) setCategory(itemObj.category.name)
@@ -253,38 +257,6 @@ const ADD_INVENTORY_ITEM_MUTATION = gql`
   }
 `
 
-const ITEMS_QUERY = gql`
-  query items {
-    items {
-      id
-      name
-      default_shelflife
-      category {
-        id
-        name
-      }
-    }
-  }
-`
-
-const CATEGORIES_QUERY = gql`
-  query categories {
-    categories {
-      id
-      name
-    }
-  }
-`
-
-const LOCATIONS_QUERY = gql`
-  query itemLocations {
-    itemLocations {
-      id
-      name
-    }
-  }
-`
-
 const Form = styled.form`
   label {
     display: block;
@@ -300,13 +272,5 @@ const Row = styled.div`
     width: 110px;
   }
 `
-
-FormAdd.propTypes = {
-  setIsSorted: PropTypes.func.isRequired,
-  INVENTORY_ITEMS_QUERY: PropTypes.shape({}).isRequired,
-  client: PropTypes.shape({
-    readQuery: PropTypes.func.isRequired,
-  }).isRequired,
-}
 
 export default FormAdd

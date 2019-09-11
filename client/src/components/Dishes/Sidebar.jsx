@@ -6,7 +6,7 @@ import { gql } from 'apollo-boost'
 import {
   SORT_AND_FILTER_DISHES_MUTATION,
   DISH_TAGS_QUERY,
-  CURRENT_FILTERS_QUERY,
+  CURRENT_DISH_FILTERS_QUERY,
 } from '../../queries'
 
 const Sidebar = () => {
@@ -20,7 +20,7 @@ const Sidebar = () => {
     loading: filtersLoading,
     error: filtersError,
     data: filtersData,
-  } = useQuery(CURRENT_FILTERS_QUERY)
+  } = useQuery(CURRENT_DISH_FILTERS_QUERY)
 
   const [addFilter] = useMutation(ADD_FILTER_MUTATION)
   const [sortAndFilterDishes] = useMutation(SORT_AND_FILTER_DISHES_MUTATION)

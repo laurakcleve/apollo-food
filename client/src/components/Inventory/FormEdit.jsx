@@ -3,6 +3,14 @@ import PropTypes from 'prop-types'
 import { useQuery, useMutation } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 import styled from 'styled-components'
+
+import {
+  INVENTORY_ITEMS_QUERY,
+  CATEGORIES_QUERY,
+  LOCATIONS_QUERY,
+  SORT_AND_FILTER_INVENTORY_ITEMS_MUTATION,
+} from '../../queries'
+
 import {
   unixTimeToFormatted,
   formattedTimeToPg,
@@ -10,12 +18,7 @@ import {
   getDaysLeft,
 } from '../../utils'
 
-const FormEdit = ({
-  inventoryItem,
-  setIsEditing,
-  INVENTORY_ITEMS_QUERY,
-  setIsSorted,
-}) => {
+const FormEdit = ({ inventoryItem, setIsEditing }) => {
   const [amount, setAmount] = useState(inventoryItem.amount)
   const [addDate, setAddDate] = useState(
     unixTimeToFormatted(inventoryItem.add_date) || ''
@@ -28,21 +31,25 @@ const FormEdit = ({
     inventoryItem.location ? inventoryItem.location.name : ''
   )
 
-  const { loading, error, data } = useQuery(CATEGORIES_QUERY)
+  const {
+    loading: categoriesLoading,
+    error: categoriesError,
+    data: categoriesData,
+  } = useQuery(CATEGORIES_QUERY)
   const {
     loading: loadingLocations,
     error: errorLocations,
     data: dataLocations,
   } = useQuery(LOCATIONS_QUERY)
+  const [sortAndFilterInventoryItems] = useMutation(
+    SORT_AND_FILTER_INVENTORY_ITEMS_MUTATION
+  )
   const [updateInventoryItem] = useMutation(UPDATE_INVENTORY_ITEM_MUTATION, {
-    refetchQueries: [
-      {
-        query: INVENTORY_ITEMS_QUERY,
-      },
-    ],
+    refetchQueries: [{ query: INVENTORY_ITEMS_QUERY }],
+    awaitRefetchQueries: true,
     onCompleted: () => {
       setIsEditing(false)
-      setIsSorted(false)
+      sortAndFilterInventoryItems()
     },
   })
 
@@ -105,9 +112,9 @@ const FormEdit = ({
             value={category}
             onChange={(event) => setCategory(event.target.value)}
           />
-          {!loading && !error && (
+          {!categoriesLoading && !categoriesError && (
             <datalist id="categoryList">
-              {data.categories.map((listCategory) => (
+              {categoriesData.categories.map((listCategory) => (
                 <option key={listCategory.id}>{listCategory.name}</option>
               ))}
             </datalist>
@@ -173,24 +180,6 @@ const UPDATE_INVENTORY_ITEM_MUTATION = gql`
   }
 `
 
-const CATEGORIES_QUERY = gql`
-  query categories {
-    categories {
-      id
-      name
-    }
-  }
-`
-
-const LOCATIONS_QUERY = gql`
-  query itemLocations {
-    itemLocations {
-      id
-      name
-    }
-  }
-`
-
 const Form = styled.form`
   margin-top: 20px;
 
@@ -235,8 +224,6 @@ FormEdit.propTypes = {
     }),
   }).isRequired,
   setIsEditing: PropTypes.func.isRequired,
-  INVENTORY_ITEMS_QUERY: PropTypes.shape({}).isRequired,
-  setIsSorted: PropTypes.func.isRequired,
 }
 
 export default FormEdit

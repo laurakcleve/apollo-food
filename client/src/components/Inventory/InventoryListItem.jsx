@@ -5,23 +5,24 @@ import { useMutation } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 import moment from 'moment'
 
+import {
+  INVENTORY_ITEMS_QUERY,
+  SORTED_FILTERED_INVENTORY_ITEMS_QUERY,
+  SORT_AND_FILTER_INVENTORY_ITEMS_MUTATION,
+} from '../../queries'
+
 import Details from './Details'
 
-const InventoryListItem = ({
-  inventoryItem,
-  INVENTORY_ITEMS_QUERY,
-  setIsSorted,
-  selectedItemID,
-  setSelectedItemID,
-}) => {
+const InventoryListItem = ({ inventoryItem, selectedItemID, setSelectedItemID }) => {
+  const [sortAndFilterDishes] = useMutation(SORT_AND_FILTER_INVENTORY_ITEMS_MUTATION)
   const [deleteInventoryItem] = useMutation(DELETE_INVENTORY_ITEM_MUTATION, {
     refetchQueries: [
-      {
-        query: INVENTORY_ITEMS_QUERY,
-      },
+      { query: INVENTORY_ITEMS_QUERY },
+      { query: SORTED_FILTERED_INVENTORY_ITEMS_QUERY },
     ],
+    awaitRefetchQueries: true,
     onCompleted: () => {
-      setIsSorted(false)
+      sortAndFilterDishes()
     },
   })
 
@@ -63,11 +64,7 @@ const InventoryListItem = ({
         </div>
       </TitleBar>
       {selectedItemID === inventoryItem.id && (
-        <Details
-          inventoryItem={inventoryItem}
-          INVENTORY_ITEMS_QUERY={INVENTORY_ITEMS_QUERY}
-          setIsSorted={setIsSorted}
-        />
+        <Details inventoryItem={inventoryItem} />
       )}
     </ListItem>
   )
@@ -104,8 +101,6 @@ InventoryListItem.propTypes = {
       ),
     }),
   }).isRequired,
-  INVENTORY_ITEMS_QUERY: PropTypes.shape({}).isRequired,
-  setIsSorted: PropTypes.func.isRequired,
   selectedItemID: PropTypes.string,
   setSelectedItemID: PropTypes.func.isRequired,
 }

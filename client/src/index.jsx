@@ -30,11 +30,14 @@ const client = new ApolloClient({
 
 cache.writeData({
   data: {
-    filteredDishes: [],
-    currentFilters: ['all'],
     sortedFilteredDishes: [],
+    currentDishFilters: ['all'],
     currentDishSortBy: 'last date',
     currentDishSortOrder: 'desc',
+    sortedFilteredInventoryItems: [],
+    currentInventorySortBy: 'expiration',
+    currentInventorySortOrder: 'asc',
+    currentInventoryFilter: 'all',
   },
 })
 

@@ -5,62 +5,60 @@ import styled from 'styled-components'
 
 import FormEdit from './FormEdit'
 
-const Details = ({ inventoryItem, INVENTORY_ITEMS_QUERY, setIsSorted }) => {
+const Details = ({ inventoryItem }) => {
   const [isEditing, setIsEditing] = useState(false)
 
   return (
     <StyledDetails>
       <Row>
         <Detail>
-          <DetailTitle>Added</DetailTitle>
-          <DetailText>
-            {moment(Number(inventoryItem.add_date)).format('M/D/YY')}
-          </DetailText>
+          <Title>Added</Title>
+          <Text>{moment(Number(inventoryItem.add_date)).format('M/D/YY')}</Text>
         </Detail>
 
         {inventoryItem.item.countsAs.length > 0 && (
           <Detail>
-            <DetailTitle>Counts as</DetailTitle>
-            <DetailText>
+            <Title>Counts as</Title>
+            <Text>
               {inventoryItem.item.countsAs.map((genericItem) => (
                 <span key={genericItem.id}>{genericItem.name}</span>
               ))}
-            </DetailText>
+            </Text>
           </Detail>
         )}
 
         {inventoryItem.amount && (
           <Detail>
-            <DetailTitle>Amount</DetailTitle>
-            <DetailText>{inventoryItem.amount}</DetailText>
+            <Title>Amount</Title>
+            <Text>{inventoryItem.amount}</Text>
           </Detail>
         )}
 
         {inventoryItem.item.dishes.length > 0 && (
           <Detail>
-            <DetailTitle>Used In</DetailTitle>
-            <DetailText>
+            <Title>Used In</Title>
+            <Text>
               {inventoryItem.item.dishes.map((dish, index) => (
                 <span key={dish.id}>
                   {dish.name}
                   {index < inventoryItem.item.dishes.length - 1 && ', '}
                 </span>
               ))}
-            </DetailText>
+            </Text>
           </Detail>
         )}
 
         {inventoryItem.item.category && (
           <Detail>
-            <DetailTitle>Category</DetailTitle>
-            <DetailText>{inventoryItem.item.category.name}</DetailText>
+            <Title>Category</Title>
+            <Text>{inventoryItem.item.category.name}</Text>
           </Detail>
         )}
 
         {inventoryItem.location && (
           <Detail>
-            <DetailTitle>Location</DetailTitle>
-            <DetailText>{inventoryItem.location.name}</DetailText>
+            <Title>Location</Title>
+            <Text>{inventoryItem.location.name}</Text>
           </Detail>
         )}
 
@@ -69,12 +67,7 @@ const Details = ({ inventoryItem, INVENTORY_ITEMS_QUERY, setIsSorted }) => {
         </button>
       </Row>
       {isEditing && (
-        <FormEdit
-          inventoryItem={inventoryItem}
-          setIsEditing={setIsEditing}
-          INVENTORY_ITEMS_QUERY={INVENTORY_ITEMS_QUERY}
-          setIsSorted={setIsSorted}
-        />
+        <FormEdit inventoryItem={inventoryItem} setIsEditing={setIsEditing} />
       )}
     </StyledDetails>
   )
@@ -93,9 +86,9 @@ const Detail = styled.div`
   width: 100px;
 `
 
-const DetailTitle = styled.div``
+const Title = styled.div``
 
-const DetailText = styled.div``
+const Text = styled.div``
 
 Details.propTypes = {
   inventoryItem: PropTypes.shape({
@@ -128,8 +121,6 @@ Details.propTypes = {
       name: PropTypes.string.isRequired,
     }),
   }).isRequired,
-  INVENTORY_ITEMS_QUERY: PropTypes.shape({}).isRequired,
-  setIsSorted: PropTypes.func.isRequired,
 }
 
 export default Details

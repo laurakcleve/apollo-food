@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { useQuery, useMutation } from '@apollo/react-hooks'
-import { withApollo } from 'react-apollo'
 import styled from 'styled-components'
 
 import Sidebar from './Sidebar'
@@ -32,7 +31,7 @@ const Dishes = () => {
     <StyledDishes>
       <h1>Dishes</h1>
       <div className="container">
-        <Sidebar sortAndFilterDishes={sortAndFilterDishes} />
+        <Sidebar />
         <div className="content">
           <DishList>
             <div style={{ display: 'flex' }}>
@@ -102,4 +101,4 @@ const DishList = styled.div`
   }
 `
 
-export default withApollo(Dishes)
+export default Dishes
