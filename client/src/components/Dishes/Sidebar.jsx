@@ -2,26 +2,24 @@ import React from 'react'
 import styled from 'styled-components'
 import { useQuery, useMutation } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
-import { withApollo } from 'react-apollo'
 
-const Sidebar = ({ sortAndFilterDishes }) => {
+import { SORT_AND_FILTER_DISHES_MUTATION } from '../../queries'
+
+const Sidebar = () => {
   const { loading: tagsLoading, error: tagsError, data: tagsData } = useQuery(
     DISH_TAGS_QUERY
   )
-
   const { data: sortByData, loading: sortByLoading, error: sortByError } = useQuery(
-    GET_SORT_BY_QUERY
+    SORT_BY_QUERY
   )
-
   const {
     loading: filtersLoading,
     error: filtersError,
     data: filtersData,
-  } = useQuery(GET_CURRENT_FILTERS)
+  } = useQuery(CURRENT_FILTERS_QUERY)
 
-  const [addFilter] = useMutation(ADD_FILTER_MUTATION, {
-    refetchQueries: [{ query: GET_FILTERED_DISHES }],
-  })
+  const [addFilter] = useMutation(ADD_FILTER_MUTATION)
+  const [sortAndFilterDishes] = useMutation(SORT_AND_FILTER_DISHES_MUTATION)
 
   return (
     <StyledSidebar>
@@ -64,7 +62,7 @@ const StyledSidebar = styled.div`
 
 const Tags = styled.div``
 
-const GET_SORT_BY_QUERY = gql`
+const SORT_BY_QUERY = gql`
   query sortByQuery {
     currentDishSortBy @client
   }
@@ -79,7 +77,7 @@ const DISH_TAGS_QUERY = gql`
   }
 `
 
-const GET_CURRENT_FILTERS = gql`
+const CURRENT_FILTERS_QUERY = gql`
   query currentFilters {
     currentFilters @client
   }
@@ -91,32 +89,4 @@ const ADD_FILTER_MUTATION = gql`
   }
 `
 
-const GET_FILTERED_DISHES = gql`
-  query filteredDishes {
-    filteredDishes @client {
-      id
-      name
-      ingredientSets {
-        id
-        optional
-        ingredients {
-          id
-          item {
-            id
-            name
-          }
-        }
-      }
-      dates {
-        id
-        date
-      }
-      tags {
-        id
-        name
-      }
-    }
-  }
-`
-
-export default withApollo(Sidebar)
+export default Sidebar

@@ -30,17 +30,13 @@ const FormAdd = ({ SORTED_FILTERED_DISHES_QUERY }) => {
   const [sortAndFilterDishes] = useMutation(SORT_AND_FILTER_DISHES_MUTATION)
   const [addDish] = useMutation(ADD_DISH_MUTATION, {
     refetchQueries: [
-      {
-        query: SORTED_FILTERED_DISHES_QUERY,
-      },
-      {
-        query: DISHES_QUERY,
-      },
+      { query: SORTED_FILTERED_DISHES_QUERY },
+      { query: DISHES_QUERY },
     ],
     awaitRefetchQueries: true,
     onCompleted: () => {
       resetInputs()
-      sortAndFilterDishes({ variables: { sortBy: 'last date' } })
+      sortAndFilterDishes()
     },
   })
 

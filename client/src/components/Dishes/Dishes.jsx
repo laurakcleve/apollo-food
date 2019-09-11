@@ -7,12 +7,13 @@ import styled from 'styled-components'
 import Sidebar from './Sidebar'
 import FormAdd from './FormAdd'
 import DishListItem from './DishListItem'
+import { DISHES_QUERY, SORTED_FILTERED_DISHES_QUERY } from '../../queries'
 
 const Dishes = () => {
   const [selectedDishID, setSelectedDishID] = useState(null)
 
   const { data: sortedData } = useQuery(SORTED_FILTERED_DISHES_QUERY)
-  const { data: dishesData } = useQuery(DISHES_QUERY, {
+  const { loading: dishesLoading } = useQuery(DISHES_QUERY, {
     onCompleted: () => {
       if (sortedData && !sortedData.sortedFilteredDishes.length) {
         sortAndFilterDishes()
@@ -21,6 +22,8 @@ const Dishes = () => {
   })
 
   const [sortAndFilterDishes] = useMutation(SORT_AND_FILTER_DISHES_MUTATION)
+
+  if (dishesLoading) return <p>Loading...</p>
 
   return (
     <StyledDishes>
@@ -73,62 +76,6 @@ const Dishes = () => {
     </StyledDishes>
   )
 }
-
-const DISHES_QUERY = gql`
-  query dishes {
-    dishes {
-      id
-      name
-      ingredientSets {
-        id
-        optional
-        ingredients {
-          id
-          item {
-            id
-            name
-          }
-        }
-      }
-      dates {
-        id
-        date
-      }
-      tags {
-        id
-        name
-      }
-    }
-  }
-`
-
-const SORTED_FILTERED_DISHES_QUERY = gql`
-  query sortedFilteredDishes {
-    sortedFilteredDishes @client {
-      id
-      name
-      ingredientSets {
-        id
-        optional
-        ingredients {
-          id
-          item {
-            id
-            name
-          }
-        }
-      }
-      dates {
-        id
-        date
-      }
-      tags {
-        id
-        name
-      }
-    }
-  }
-`
 
 const SORT_AND_FILTER_DISHES_MUTATION = gql`
   mutation sortAndFilterDishes($sortBy: String, $manual: Boolean) {
